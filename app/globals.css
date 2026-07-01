@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222 32% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 32% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 32% 12%;
+
+    /* Deep slate primary — mechanical, precise garage feel */
+    --primary: 222 40% 20%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 30% 96%;
+    --secondary-foreground: 222 32% 18%;
+
+    --muted: 210 30% 96%;
+    --muted-foreground: 215 16% 45%;
+
+    /* Warm amber accent (garage / tools) */
+    --accent: 32 95% 94%;
+    --accent-foreground: 28 80% 28%;
+
+    --destructive: 0 72% 48%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 55% 38%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 45%;
+    --warning-foreground: 0 0% 100%;
+
+    --border: 214 24% 90%;
+    --input: 214 24% 88%;
+    --ring: 32 90% 48%;
+
+    --radius: 0.6rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "cv11", "ss01";
+    -webkit-font-smoothing: antialiased;
+  }
+}
