@@ -12,6 +12,7 @@ import type {
   Attachment,
   ServiceCategory,
   FuelTypeRecord,
+  UserSettings,
 } from "./types";
 
 export async function getVehicles(): Promise<Vehicle[]> {
@@ -107,4 +108,17 @@ export async function getFuelTypes(): Promise<FuelTypeRecord[]> {
   if (!sb) return [];
   const { data } = await sb.from("fuel_types").select("*").order("sort_order");
   return (data as FuelTypeRecord[]) ?? [];
+}
+
+export async function getUserSettings(): Promise<UserSettings | null> {
+  const sb = getServerClient();
+  if (!sb) return null;
+  const { data: user } = await sb.auth.getUser();
+  if (!user?.user) return null;
+  const { data } = await sb
+    .from("user_settings")
+    .select("*")
+    .eq("user_id", user.user.id)
+    .maybeSingle();
+  return (data as UserSettings) ?? null;
 }

@@ -12,8 +12,9 @@ import {
 } from "@/components/ui/table";
 import { FuelTypeForm } from "@/components/forms/FuelTypeForm";
 import { ServiceCategoryForm } from "@/components/forms/ServiceCategoryForm";
+import { NotificationSettingsForm } from "@/components/forms/NotificationSettingsForm";
 import { DeleteButton } from "@/components/DeleteButton";
-import { getFuelTypes, getServiceCategories } from "@/lib/queries";
+import { getFuelTypes, getServiceCategories, getUserSettings } from "@/lib/queries";
 import { deleteFuelType, deleteServiceCategory } from "@/app/actions";
 import {
   getSupabaseUrl,
@@ -55,9 +56,10 @@ export default async function SettingsPage() {
   const resend = process.env.RESEND_API_KEY ?? "";
   const configured = isSupabaseConfigured();
 
-  const [fuelTypes, categories] = await Promise.all([
+  const [fuelTypes, categories, settings] = await Promise.all([
     getFuelTypes(),
     getServiceCategories(),
+    getUserSettings(),
   ]);
 
   return (
@@ -111,6 +113,18 @@ export default async function SettingsPage() {
               </div>
             )}
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Notification Settings */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Bell className="h-4 w-4 text-primary" /> ตั้งค่าการแจ้งเตือน / Notifications Configuration
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <NotificationSettingsForm settings={settings} />
         </CardContent>
       </Card>
 

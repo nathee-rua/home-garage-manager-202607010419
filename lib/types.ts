@@ -141,3 +141,13 @@ export interface ServiceCategory {
   is_user_defined: boolean;
   user_id: string | null;
 }
+
+export interface UserSettings {
+  user_id: string;
+  telegram_chat_id: string | null;
+  telegram_enabled: boolean;
+  email_enabled: boolean;
+  notify_days_before: number;
+  created_at: string;
+}
+

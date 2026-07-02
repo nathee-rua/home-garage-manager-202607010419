@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { getServerClient } from "@/lib/supabase/server";
+import { sendEmailNotification, sendTelegramNotification } from "@/lib/notifications";
 
 export interface ActionResult {
   ok: boolean;
@@ -457,5 +458,79 @@ export async function deleteServiceCategory(code: string): Promise<ActionResult>
   const { error } = await sb.from("service_categories").delete().eq("code", code);
   if (error) return { ok: false, error: error.message };
   revalidateAll();
+  return { ok: true };
+}
+
+// ── User Settings Actions ──
+export async function saveUserSettings(formData: FormData): Promise<ActionResult> {
+  const { sb, err } = requireClient();
+  if (!sb) return { ok: false, error: err! };
+
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) return { ok: false, error: "ยังไม่ได้เข้าสู่ระบบ" };
+
+  const payload = {
+    user_id: user.id,
+    telegram_chat_id: str(formData.get("telegram_chat_id")),
+    telegram_enabled: formData.get("telegram_enabled") === "true",
+    email_enabled: formData.get("email_enabled") === "true",
+    notify_days_before: num(formData.get("notify_days_before")) ?? 7,
+  };
+
+  const { error } = await sb.from("user_settings").upsert(payload, { onConflict: "user_id" });
+  if (error) return { ok: false, error: error.message };
+
+  revalidateAll();
+  return { ok: true };
+}
+
+export async function sendTestNotification(): Promise<ActionResult> {
+  const { sb, err } = requireClient();
+  if (!sb) return { ok: false, error: err! };
+
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user || !user.email) return { ok: false, error: "ยังไม่ได้เข้าสู่ระบบ" };
+
+  const { data: settings } = await sb
+    .from("user_settings")
+    .select("*")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (!settings) {
+    return { ok: false, error: "กรุณาตั้งค่าแจ้งเตือนและบันทึกข้อมูลก่อนทดสอบ" };
+  }
+
+  let emailSent = false;
+  let telegramSent = false;
+  let errors: string[] = [];
+
+  if (settings.email_enabled) {
+    const htmlBody = `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 8px;">
+        <h2 style="color: #000; border-bottom: 2px solid #000; padding-bottom: 10px;">🧪 ทดสอบระบบการแจ้งเตือน</h2>
+        <p style="color: #666; font-size: 14px;">ข้อความนี้เป็นข้อความทดสอบจากระบบ Home Garage Manager เพื่อตรวจสอบการเชื่อมต่อกับกล่องจดหมายของคุณ</p>
+        <p style="color: green; font-size: 14px; font-weight: bold;">การเชื่อมต่ออีเมลสำเร็จ! / Email Connection Success!</p>
+      </div>
+    `;
+    const res = await sendEmailNotification(user.email, "🧪 ทดสอบการส่งการแจ้งเตือน (Home Garage Manager)", htmlBody);
+    if (res.ok) emailSent = true;
+    else errors.push(`Email error: ${res.error}`);
+  }
+
+  if (settings.telegram_enabled && settings.telegram_chat_id) {
+    const tgMsg = `<b>🧪 ทดสอบระบบแจ้งเตือน Telegram Bot</b>\n\nการเชื่อมต่อ Telegram สำเร็จ! คุณได้รับการตั้งค่าแจ้งเตือนล่วงหน้า <b>${settings.notify_days_before} วัน</b> เรียบร้อยแล้ว`;
+    const res = await sendTelegramNotification(settings.telegram_chat_id, tgMsg);
+    if (res.ok) telegramSent = true;
+    else errors.push(`Telegram error: ${res.error}`);
+  }
+
+  if (errors.length > 0) {
+    return {
+      ok: false,
+      error: `ส่งข้อความไม่สำเร็จบางช่องทาง: ${errors.join(", ")}`,
+    };
+  }
+
   return { ok: true };
 }
