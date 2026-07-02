@@ -233,10 +233,27 @@ create policy "Users can manage their own vehicles" on vehicles
 
 -- 2. Providers Policy
 drop policy if exists "Users can manage their own providers" on providers;
-create policy "Users can manage their own providers" on providers
-  for all to authenticated
+drop policy if exists "Anyone authenticated can view providers" on providers;
+drop policy if exists "Users can insert their own providers" on providers;
+drop policy if exists "Users can update their own providers" on providers;
+drop policy if exists "Users can delete their own providers" on providers;
+
+create policy "Anyone authenticated can view providers" on providers
+  for select to authenticated
+  using (true);
+
+create policy "Users can insert their own providers" on providers
+  for insert to authenticated
+  with check (user_id = auth.uid());
+
+create policy "Users can update their own providers" on providers
+  for update to authenticated
   using (user_id = auth.uid())
   with check (user_id = auth.uid());
+
+create policy "Users can delete their own providers" on providers
+  for delete to authenticated
+  using (user_id = auth.uid());
 
 -- 3. Service Rules Policy
 drop policy if exists "Users can manage service rules for their own vehicles" on service_rules;
