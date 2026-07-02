@@ -93,7 +93,11 @@ export function RenewalsTable({
               </TableCell>
               <TableCell>
                 <div className="flex items-center justify-end gap-1">
-                  <RenewalStatusControl id={r.id} status={r.status} />
+                  <RenewalStatusControl
+                    id={r.id}
+                    status={r.status}
+                    costEstimate={Number(r.cost_estimate)}
+                  />
                   <DeleteButton action={deleteRenewal.bind(null, r.id)} />
                 </div>
               </TableCell>

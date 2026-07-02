@@ -189,6 +189,22 @@ export async function updateRenewalStatus(
   return { ok: true };
 }
 
+export async function completeRenewal(
+  id: string,
+  actualCost: number
+): Promise<ActionResult> {
+  const { sb, err } = requireClient();
+  if (!sb) return { ok: false, error: err! };
+  const { error } = await sb
+    .from("renewals")
+    .update({ status: "done", cost_estimate: actualCost })
+    .eq("id", id);
+  if (error) return { ok: false, error: error.message };
+  revalidateAll();
+  return { ok: true };
+}
+
+
 export async function deleteRenewal(id: string): Promise<ActionResult> {
   const { sb, err } = requireClient();
   if (!sb) return { ok: false, error: err! };

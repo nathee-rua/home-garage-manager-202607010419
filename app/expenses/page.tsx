@@ -17,19 +17,24 @@ import {
   getRepairEvents,
   getVehicles,
   getServiceCategories,
+  getRenewals,
 } from "@/lib/queries";
 import { serviceCategoryLabel } from "@/lib/categoryLabels";
 import { formatTHB } from "@/lib/utils";
+import { renewalTypeLabels } from "@/lib/labels";
 
 export const dynamic = "force-dynamic";
 
 export default async function ExpensesPage() {
-  const [vehicles, events, repairs, categories] = await Promise.all([
+  const [vehicles, events, repairs, renewals, categories] = await Promise.all([
     getVehicles(),
     getServiceEvents(),
     getRepairEvents(),
+    getRenewals(),
     getServiceCategories(),
   ]);
+
+  const doneRenewals = renewals.filter((r) => r.status === "done");
 
   const vName = (id: string) => {
     const v = vehicles.find((x) => x.id === id);
@@ -39,27 +44,36 @@ export default async function ExpensesPage() {
   const svcCost = (e: (typeof events)[number]) =>
     Number(e.cost_parts) + Number(e.cost_labor) + Number(e.cost_misc);
 
-  // Per vehicle
+  // Per vehicle (service + repair + renewals)
   const perVehicle = new Map<string, number>();
   for (const e of events) perVehicle.set(e.vehicle_id, (perVehicle.get(e.vehicle_id) ?? 0) + svcCost(e));
   for (const r of repairs)
     perVehicle.set(r.vehicle_id, (perVehicle.get(r.vehicle_id) ?? 0) + Number(r.total_cost));
+  for (const rn of doneRenewals)
+    perVehicle.set(rn.vehicle_id, (perVehicle.get(rn.vehicle_id) ?? 0) + Number(rn.cost_estimate));
 
-  // Per category (service only)
+  // Per category (service + renewals)
   const perCategory = new Map<string, number>();
   for (const e of events)
     perCategory.set(e.category, (perCategory.get(e.category) ?? 0) + svcCost(e));
+  for (const rn of doneRenewals) {
+    const label = `ต่ออายุ: ${renewalTypeLabels[rn.type]?.th ?? rn.type}`;
+    perCategory.set(label, (perCategory.get(label) ?? 0) + Number(rn.cost_estimate));
+  }
 
-  // Per month (service + repair)
+  // Per month (service + repair + renewals)
   const perMonth = new Map<string, number>();
   const monthKey = (d: string) => d.slice(0, 7);
   for (const e of events) perMonth.set(monthKey(e.date), (perMonth.get(monthKey(e.date)) ?? 0) + svcCost(e));
   for (const r of repairs)
     perMonth.set(monthKey(r.date), (perMonth.get(monthKey(r.date)) ?? 0) + Number(r.total_cost));
+  for (const rn of doneRenewals)
+    perMonth.set(monthKey(rn.due_date), (perMonth.get(monthKey(rn.due_date)) ?? 0) + Number(rn.cost_estimate));
 
   const grandTotal =
     events.reduce((s, e) => s + svcCost(e), 0) +
-    repairs.reduce((s, r) => s + Number(r.total_cost), 0);
+    repairs.reduce((s, r) => s + Number(r.total_cost), 0) +
+    doneRenewals.reduce((s, rn) => s + Number(rn.cost_estimate), 0);
 
   const perVehicleRows = Array.from(perVehicle.entries())
     .map(([id, total]) => ({ vehicle: vName(id), total }))
@@ -71,7 +85,7 @@ export default async function ExpensesPage() {
     .map(([month, total]) => ({ month, total }))
     .sort((a, b) => (a.month < b.month ? 1 : -1));
 
-  const empty = events.length === 0 && repairs.length === 0;
+  const empty = events.length === 0 && repairs.length === 0 && doneRenewals.length === 0;
 
   return (
     <div className="space-y-6">
@@ -102,7 +116,7 @@ export default async function ExpensesPage() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <StatCard label="ค่าใช้จ่ายรวมทั้งหมด" value={formatTHB(grandTotal)} />
             <StatCard label="จำนวนรถ" value={vehicles.length} />
-            <StatCard label="จำนวนบันทึก" value={events.length + repairs.length} />
+            <StatCard label="จำนวนบันทึก" value={events.length + repairs.length + doneRenewals.length} />
           </div>
 
           <Card>
