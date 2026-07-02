@@ -41,8 +41,8 @@ export function VehicleCard({
 
           {/* Middle Section: Formatted plate number like credit card numbers */}
           <div className="my-5">
-            <p className="text-base font-mono tracking-widest text-slate-200 font-semibold">
-              {vehicle.plate_no ? vehicle.plate_no : "•••• •••• ••••"}
+            <p className="text-sm tracking-wide text-slate-200 font-medium">
+              {vehicle.plate_no ? vehicle.plate_no : "ไม่ระบุทะเบียน / No License"}
             </p>
             {nextDueSummary ? (
               <p className="text-[11px] text-slate-400 truncate mt-1">{nextDueSummary}</p>
