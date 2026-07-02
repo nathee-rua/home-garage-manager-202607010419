@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Plus, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -36,9 +37,11 @@ export function VehicleFormDialog() {
     startTransition(async () => {
       const res = await createVehicle(formData);
       if (res.ok) {
+        toast.success("เพิ่มข้อมูลรถยนต์สำเร็จแล้ว");
         setOpen(false);
         setFuel("gasoline");
       } else {
+        toast.error(res.error ?? "เกิดข้อผิดพลาด");
         setError(res.error ?? "เกิดข้อผิดพลาด");
       }
     });

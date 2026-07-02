@@ -278,3 +278,39 @@ export async function deleteAttachment(id: string, vehicleId: string): Promise<A
   revalidatePath(`/vehicles/${vehicleId}`);
   return { ok: true };
 }
+
+// ------------------------------------------------------------- Planned Jobs ---
+export async function createPlannedJob(formData: FormData): Promise<ActionResult> {
+  const { sb, err } = requireClient();
+  if (!sb) return { ok: false, error: err! };
+
+  const payload = {
+    vehicle_id: str(formData.get("vehicle_id")),
+    title: str(formData.get("title")) ?? "",
+    target_date: str(formData.get("target_date")),
+    target_odometer: num(formData.get("target_odometer")),
+    priority: (str(formData.get("priority")) ?? "medium") as string,
+    criticality: str(formData.get("criticality")),
+    note: str(formData.get("note")),
+  };
+
+  if (!payload.vehicle_id || !payload.title) {
+    return { ok: false, error: "กรุณากรอกหัวข้อและเลือกรถ" };
+  }
+
+  const { error } = await sb.from("planned_jobs").insert(payload);
+  if (error) return { ok: false, error: error.message };
+  revalidateAll();
+  revalidatePath(`/vehicles/${payload.vehicle_id}`);
+  return { ok: true };
+}
+
+export async function deletePlannedJob(id: string, vehicleId: string): Promise<ActionResult> {
+  const { sb, err } = requireClient();
+  if (!sb) return { ok: false, error: err! };
+  const { error } = await sb.from("planned_jobs").delete().eq("id", id);
+  if (error) return { ok: false, error: error.message };
+  revalidateAll();
+  revalidatePath(`/vehicles/${vehicleId}`);
+  return { ok: true };
+}

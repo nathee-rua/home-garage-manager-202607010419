@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Plus, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -34,7 +35,12 @@ export function ServiceRuleForm({
         fd.set("category", category);
         startTransition(async () => {
           const res = await createServiceRule(fd);
-          if (!res.ok) setError(res.error ?? "เกิดข้อผิดพลาด");
+          if (res.ok) {
+            toast.success("เพิ่มกฎการบำรุงรักษาเรียบร้อยแล้ว");
+          } else {
+            toast.error(res.error ?? "เกิดข้อผิดพลาด");
+            setError(res.error ?? "เกิดข้อผิดพลาด");
+          }
         });
       }}
       className="grid grid-cols-1 gap-3 sm:grid-cols-4"

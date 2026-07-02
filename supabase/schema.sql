@@ -194,10 +194,13 @@ from service_events
 group by vehicle_id, date_trunc('month', date);
 
 -- =============================================================================
--- Row Level Security — v1 permissive (single household, no auth)
--- Every table gets RLS enabled with a fully permissive policy for the anon role.
--- Tighten these once auth is added in a future version.
+-- Row Level Security — Secure Auth-based policies
 -- =============================================================================
+-- Add user_id column to core tables
+alter table vehicles add column if not exists user_id uuid references auth.users(id) on delete cascade default auth.uid();
+alter table providers add column if not exists user_id uuid references auth.users(id) on delete cascade default auth.uid();
+
+-- Enable RLS
 alter table vehicles           enable row level security;
 alter table service_rules      enable row level security;
 alter table service_events     enable row level security;
@@ -208,6 +211,7 @@ alter table providers          enable row level security;
 alter table attachments        enable row level security;
 alter table service_categories enable row level security;
 
+-- Drop old permissive policies
 do $$
 declare t text;
 begin
@@ -217,12 +221,82 @@ begin
   ]
   loop
     execute format('drop policy if exists %I on %I;', 'allow_all_' || t, t);
-    execute format(
-      'create policy %I on %I for all to anon, authenticated using (true) with check (true);',
-      'allow_all_' || t, t
-    );
   end loop;
 end $$;
+
+-- 1. Vehicles Policy
+drop policy if exists "Users can manage their own vehicles" on vehicles;
+create policy "Users can manage their own vehicles" on vehicles
+  for all to authenticated
+  using (user_id = auth.uid())
+  with check (user_id = auth.uid());
+
+-- 2. Providers Policy
+drop policy if exists "Users can manage their own providers" on providers;
+create policy "Users can manage their own providers" on providers
+  for all to authenticated
+  using (user_id = auth.uid())
+  with check (user_id = auth.uid());
+
+-- 3. Service Rules Policy
+drop policy if exists "Users can manage service rules for their own vehicles" on service_rules;
+create policy "Users can manage service rules for their own vehicles" on service_rules
+  for all to authenticated
+  using (exists (select 1 from vehicles where vehicles.id = service_rules.vehicle_id and vehicles.user_id = auth.uid()))
+  with check (exists (select 1 from vehicles where vehicles.id = service_rules.vehicle_id and vehicles.user_id = auth.uid()));
+
+-- 4. Service Events Policy
+drop policy if exists "Users can manage service events for their own vehicles" on service_events;
+create policy "Users can manage service events for their own vehicles" on service_events
+  for all to authenticated
+  using (exists (select 1 from vehicles where vehicles.id = service_events.vehicle_id and vehicles.user_id = auth.uid()))
+  with check (exists (select 1 from vehicles where vehicles.id = service_events.vehicle_id and vehicles.user_id = auth.uid()));
+
+-- 5. Repair Events Policy
+drop policy if exists "Users can manage repair events for their own vehicles" on repair_events;
+create policy "Users can manage repair events for their own vehicles" on repair_events
+  for all to authenticated
+  using (exists (select 1 from vehicles where vehicles.id = repair_events.vehicle_id and vehicles.user_id = auth.uid()))
+  with check (exists (select 1 from vehicles where vehicles.id = repair_events.vehicle_id and vehicles.user_id = auth.uid()));
+
+-- 6. Renewals Policy
+drop policy if exists "Users can manage renewals for their own vehicles" on renewals;
+create policy "Users can manage renewals for their own vehicles" on renewals
+  for all to authenticated
+  using (exists (select 1 from vehicles where vehicles.id = renewals.vehicle_id and vehicles.user_id = auth.uid()))
+  with check (exists (select 1 from vehicles where vehicles.id = renewals.vehicle_id and vehicles.user_id = auth.uid()));
+
+-- 7. Planned Jobs Policy
+drop policy if exists "Users can manage planned jobs for their own vehicles" on planned_jobs;
+create policy "Users can manage planned jobs for their own vehicles" on planned_jobs
+  for all to authenticated
+  using (exists (select 1 from vehicles where vehicles.id = planned_jobs.vehicle_id and vehicles.user_id = auth.uid()))
+  with check (exists (select 1 from vehicles where vehicles.id = planned_jobs.vehicle_id and vehicles.user_id = auth.uid()));
+
+-- 8. Attachments Policy
+drop policy if exists "Users can manage attachments for their own vehicles" on attachments;
+create policy "Users can manage attachments for their own vehicles" on attachments
+  for all to authenticated
+  using (
+    (entity_type = 'vehicle' and exists (select 1 from vehicles where vehicles.id = entity_id and vehicles.user_id = auth.uid()))
+    or
+    (entity_type = 'service_event' and exists (select 1 from service_events join vehicles on vehicles.id = service_events.vehicle_id where service_events.id = entity_id and vehicles.user_id = auth.uid()))
+    or
+    (entity_type = 'repair_event' and exists (select 1 from repair_events join vehicles on vehicles.id = repair_events.vehicle_id where repair_events.id = entity_id and vehicles.user_id = auth.uid()))
+  )
+  with check (
+    (entity_type = 'vehicle' and exists (select 1 from vehicles where vehicles.id = entity_id and vehicles.user_id = auth.uid()))
+    or
+    (entity_type = 'service_event' and exists (select 1 from service_events join vehicles on vehicles.id = service_events.vehicle_id where service_events.id = entity_id and vehicles.user_id = auth.uid()))
+    or
+    (entity_type = 'repair_event' and exists (select 1 from repair_events join vehicles on vehicles.id = repair_events.vehicle_id where repair_events.id = entity_id and vehicles.user_id = auth.uid()))
+  );
+
+-- 9. Service Categories Policy (Read-only for all public users)
+drop policy if exists "Allow read access to service categories for everyone" on service_categories;
+create policy "Allow read access to service categories for everyone" on service_categories
+  for select to public
+  using (true);
 
 -- =============================================================================
 -- Storage bucket for attachments (create in Dashboard → Storage, name: attachments)

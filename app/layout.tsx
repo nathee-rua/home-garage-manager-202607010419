@@ -5,6 +5,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileTopBar } from "@/components/MobileTopBar";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@/components/ui/sonner";
 
 const notoThai = Noto_Sans_Thai({
   subsets: ["thai", "latin"],
@@ -38,6 +39,7 @@ export default function RootLayout({
             </div>
           </div>
           <BottomNav />
+          <Toaster position="top-center" richColors />
         </TooltipProvider>
       </body>
     </html>

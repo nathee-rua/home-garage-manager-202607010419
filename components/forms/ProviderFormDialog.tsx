@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Plus, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -47,9 +48,13 @@ export function ProviderFormDialog() {
             startTransition(async () => {
               const res = await createProvider(fd);
               if (res.ok) {
+                toast.success("เพิ่มข้อมูลร้าน/ศูนย์บริการสำเร็จแล้ว");
                 setOpen(false);
                 setType("dealer");
-              } else setError(res.error ?? "เกิดข้อผิดพลาด");
+              } else {
+                toast.error(res.error ?? "เกิดข้อผิดพลาด");
+                setError(res.error ?? "เกิดข้อผิดพลาด");
+              }
             });
           }}
           className="space-y-4"

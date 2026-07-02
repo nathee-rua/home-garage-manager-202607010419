@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Plus, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import {
   Sheet,
   SheetContent,
@@ -127,13 +128,19 @@ export function QuickAddSheet({
 
   function handle(
     fn: (fd: FormData) => Promise<{ ok: boolean; error?: string }>,
-    formData: FormData
+    formData: FormData,
+    successMessage: string
   ) {
     setError(null);
     startTransition(async () => {
       const res = await fn(formData);
-      if (res.ok) setOpen(false);
-      else setError(res.error ?? "เกิดข้อผิดพลาด");
+      if (res.ok) {
+        toast.success(successMessage);
+        setOpen(false);
+      } else {
+        toast.error(res.error ?? "เกิดข้อผิดพลาด");
+        setError(res.error ?? "เกิดข้อผิดพลาด");
+      }
     });
   }
 
@@ -168,7 +175,7 @@ export function QuickAddSheet({
                 fd.set("vehicle_id", logVehicle);
                 fd.set("category", logCategory);
                 fd.set("provider_id", logProvider === "none" ? "" : logProvider);
-                handle(createServiceEvent, fd);
+                handle(createServiceEvent, fd, "บันทึกประวัติการบำรุงรักษาเรียบร้อยแล้ว");
               }}
               className="space-y-3"
             >
@@ -229,7 +236,7 @@ export function QuickAddSheet({
                 fd.set("vehicle_id", repVehicle);
                 fd.set("urgency", repUrgency);
                 fd.set("provider_id", repProvider === "none" ? "" : repProvider);
-                handle(createRepairEvent, fd);
+                handle(createRepairEvent, fd, "บันทึกประวัติการซ่อมบำรุงเรียบร้อยแล้ว");
               }}
               className="space-y-3"
             >
@@ -288,7 +295,7 @@ export function QuickAddSheet({
                 fd.set("vehicle_id", renVehicle);
                 fd.set("type", renType);
                 fd.set("status", "upcoming");
-                handle(createRenewal, fd);
+                handle(createRenewal, fd, "บันทึกประวัติการต่ออายุเรียบร้อยแล้ว");
               }}
               className="space-y-3"
             >

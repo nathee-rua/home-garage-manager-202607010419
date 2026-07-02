@@ -33,11 +33,14 @@ import {
   getProviders,
   getServiceCategories,
   getAttachments,
+  getPlannedJobs,
 } from "@/lib/queries";
 import { fuelTypeLabels } from "@/lib/labels";
 import { serviceCategoryLabelFull } from "@/lib/categoryLabels";
 import { formatDate, formatTHB } from "@/lib/utils";
 import { deleteServiceRule, deleteVehicle } from "@/app/actions";
+import { PlannedJobForm } from "@/components/forms/PlannedJobForm";
+import { PlannedJobsTable } from "@/components/tables/PlannedJobsTable";
 
 export const dynamic = "force-dynamic";
 
@@ -49,7 +52,7 @@ export default async function VehicleDetailPage({
   const vehicle = await getVehicle(params.id);
   if (!vehicle) notFound();
 
-  const [rules, events, repairs, renewals, providers, categories, attachments] =
+  const [rules, events, repairs, renewals, providers, categories, attachments, plannedJobs] =
     await Promise.all([
       getServiceRules(params.id),
       getServiceEvents(params.id),
@@ -58,6 +61,7 @@ export default async function VehicleDetailPage({
       getProviders(),
       getServiceCategories(),
       getAttachments("vehicle", params.id),
+      getPlannedJobs(params.id),
     ]);
 
   const serviceTotal = events.reduce(
@@ -109,6 +113,7 @@ export default async function VehicleDetailPage({
           <TabsTrigger value="maintenance">บำรุงรักษา</TabsTrigger>
           <TabsTrigger value="repairs">ซ่อม</TabsTrigger>
           <TabsTrigger value="renewals">ต่ออายุ</TabsTrigger>
+          <TabsTrigger value="planned">แผนงาน</TabsTrigger>
           <TabsTrigger value="expenses">ค่าใช้จ่าย</TabsTrigger>
           <TabsTrigger value="attachments">เอกสารแนบ</TabsTrigger>
         </TabsList>
@@ -216,6 +221,16 @@ export default async function VehicleDetailPage({
           <Card>
             <CardContent className="pt-6">
               <RenewalsTable renewals={renewals} />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Planned Jobs */}
+        <TabsContent value="planned" className="space-y-6">
+          <PlannedJobForm vehicleId={vehicle.id} />
+          <Card>
+            <CardContent className="pt-6">
+              <PlannedJobsTable jobs={plannedJobs} />
             </CardContent>
           </Card>
         </TabsContent>
