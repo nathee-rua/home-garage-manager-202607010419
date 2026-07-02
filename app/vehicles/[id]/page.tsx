@@ -84,6 +84,9 @@ export default async function VehicleDetailPage({
     0
   );
   const repairTotal = repairs.reduce((s, r) => s + Number(r.total_cost), 0);
+  const renewalTotal = renewals
+    .filter((r) => r.status === "done")
+    .reduce((s, r) => s + Number(r.cost_estimate), 0);
 
   return (
     <div className="space-y-6">
@@ -267,18 +270,22 @@ export default async function VehicleDetailPage({
             <CardHeader>
               <CardTitle className="text-base">สรุปค่าใช้จ่ายของรถคันนี้</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 text-sm">
+            <CardContent className="space-y-2 text-sm pt-6">
               <div className="flex justify-between border-b py-2">
-                <span>ค่าบำรุงรักษา</span>
+                <span>ค่าบำรุงรักษา / Maintenance</span>
                 <span className="tabular-nums font-medium">{formatTHB(serviceTotal)}</span>
               </div>
               <div className="flex justify-between border-b py-2">
-                <span>ค่าซ่อม</span>
+                <span>ค่าซ่อมแซม / Repairs</span>
                 <span className="tabular-nums font-medium">{formatTHB(repairTotal)}</span>
               </div>
+              <div className="flex justify-between border-b py-2">
+                <span>ค่าต่ออายุภาษี/พ.ร.บ./ประกันภัย / Renewals</span>
+                <span className="tabular-nums font-medium">{formatTHB(renewalTotal)}</span>
+              </div>
               <div className="flex justify-between py-2 text-base font-semibold">
-                <span>รวมทั้งหมด</span>
-                <span className="tabular-nums">{formatTHB(serviceTotal + repairTotal)}</span>
+                <span>รวมทั้งหมด / Grand Total</span>
+                <span className="tabular-nums">{formatTHB(serviceTotal + repairTotal + renewalTotal)}</span>
               </div>
             </CardContent>
           </Card>

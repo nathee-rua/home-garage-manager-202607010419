@@ -143,14 +143,26 @@ export default async function ExpensesPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {perVehicleRows.map((r) => (
-                    <TableRow key={r.vehicle}>
-                      <TableCell>{r.vehicle}</TableCell>
-                      <TableCell className="text-right tabular-nums">
-                        {formatTHB(r.total)}
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {perVehicleRows.map((r) => {
+                    const percentage = grandTotal > 0 ? (r.total / grandTotal) * 100 : 0;
+                    return (
+                      <TableRow key={r.vehicle}>
+                        <TableCell>
+                          <div className="font-medium">{r.vehicle}</div>
+                          <div className="mt-1.5 hidden h-1.5 w-full max-w-[200px] rounded-full bg-slate-100 sm:block">
+                            <div
+                              className="h-1.5 rounded-full bg-amber-600 transition-all"
+                              style={{ width: `${percentage}%` }}
+                            />
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right tabular-nums">
+                          <span className="font-semibold">{formatTHB(r.total)}</span>
+                          <span className="ml-2 text-xs text-muted-foreground font-normal">({percentage.toFixed(1)}%)</span>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </CardContent>
@@ -179,14 +191,26 @@ export default async function ExpensesPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {perCategoryRows.map((r) => (
-                      <TableRow key={r.category}>
-                        <TableCell>{r.category}</TableCell>
-                        <TableCell className="text-right tabular-nums">
-                          {formatTHB(r.total)}
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {perCategoryRows.map((r) => {
+                      const percentage = grandTotal > 0 ? (r.total / grandTotal) * 100 : 0;
+                      return (
+                        <TableRow key={r.category}>
+                          <TableCell>
+                            <div className="font-medium">{r.category}</div>
+                            <div className="mt-1.5 hidden h-1.5 w-full max-w-[200px] rounded-full bg-slate-100 sm:block">
+                              <div
+                                className="h-1.5 rounded-full bg-amber-600 transition-all"
+                                style={{ width: `${percentage}%` }}
+                              />
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-right tabular-nums">
+                            <span className="font-semibold">{formatTHB(r.total)}</span>
+                            <span className="ml-2 text-xs text-muted-foreground font-normal">({percentage.toFixed(1)}%)</span>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </CardContent>
@@ -214,14 +238,26 @@ export default async function ExpensesPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {perMonthRows.map((r) => (
-                      <TableRow key={r.month}>
-                        <TableCell>{r.month}</TableCell>
-                        <TableCell className="text-right tabular-nums">
-                          {formatTHB(r.total)}
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {perMonthRows.map((r) => {
+                      const maxMonthTotal = Math.max(...perMonthRows.map(row => row.total), 1);
+                      const percentage = (r.total / maxMonthTotal) * 100;
+                      return (
+                        <TableRow key={r.month}>
+                          <TableCell>
+                            <div className="font-medium">{r.month}</div>
+                            <div className="mt-1.5 hidden h-1.5 w-full max-w-[200px] rounded-full bg-slate-100 sm:block">
+                              <div
+                                className="h-1.5 rounded-full bg-amber-600 transition-all"
+                                style={{ width: `${percentage}%` }}
+                              />
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-right tabular-nums font-semibold">
+                            {formatTHB(r.total)}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </CardContent>
