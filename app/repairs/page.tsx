@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { AlertTriangle } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { RepairEventsTable } from "@/components/tables/RepairEventsTable";
@@ -34,6 +35,7 @@ export default async function RepairsPage({
       <PageHeader
         title="การซ่อม"
         subtitle="Repair log · บันทึกการซ่อมทั้งหมด"
+        icon={AlertTriangle}
         actions={
           <QuickAddSheet vehicles={vehicles} providers={providers} categories={categories} />
         }

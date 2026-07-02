@@ -26,8 +26,9 @@ export default async function ProvidersPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="ร้าน / ศูนย์บริการ"
-        subtitle="Providers · ทำเนียบร้านและศูนย์บริการ"
+        title="ร้าน/ศูนย์บริการ"
+        subtitle="Providers · รายชื่ออู่ประจำเป็นข้อมูลแชร์กันในระบบ"
+        icon={Store}
         actions={<ProviderFormDialog />}
       />
       <ConfigBanner />

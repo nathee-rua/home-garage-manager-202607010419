@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Wrench, Pencil } from "lucide-react";
+import { ArrowLeft, Wrench, Pencil, Car } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -97,6 +97,7 @@ export default async function VehicleDetailPage({
       <PageHeader
         title={`${vehicle.brand} ${vehicle.model}`}
         subtitle={`${vehicle.plate_no ?? "ไม่ระบุทะเบียน"}${vehicle.year ? ` · ปี ${vehicle.year}` : ""}`}
+        icon={Car}
         actions={
           <>
             <QuickAddSheet

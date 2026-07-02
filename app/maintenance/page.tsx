@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { Wrench } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { ServiceEventsTable } from "@/components/tables/ServiceEventsTable";
@@ -37,6 +38,7 @@ export default async function MaintenancePage({
       <PageHeader
         title="การบำรุงรักษา"
         subtitle="Maintenance log · บันทึกการบำรุงรักษาทั้งหมด"
+        icon={Wrench}
         actions={
           <QuickAddSheet vehicles={vehicles} providers={providers} categories={categories} />
         }

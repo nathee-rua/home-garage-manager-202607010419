@@ -65,7 +65,11 @@ export default async function SettingsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="ตั้งค่า" subtitle="Settings · กำหนดค่าระบบและการแจ้งเตือนครบวงจร" />
+      <PageHeader
+        title="ตั้งค่า"
+        subtitle="Settings · กำหนดค่าระบบและการแจ้งเตือนครบวงจร"
+        icon={Settings2}
+      />
 
       <Tabs defaultValue="env" className="space-y-6">
         <TabsList className="flex flex-wrap w-full bg-slate-100/80 p-1 border rounded-xl h-auto gap-1">

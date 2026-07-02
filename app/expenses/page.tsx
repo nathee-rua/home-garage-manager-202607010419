@@ -1,4 +1,5 @@
 import { PageHeader } from "@/components/PageHeader";
+import { Receipt } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -92,6 +93,7 @@ export default async function ExpensesPage() {
       <PageHeader
         title="ค่าใช้จ่าย"
         subtitle="Expenses · สรุปตามรถ หมวด และเดือน"
+        icon={Receipt}
         actions={
           <CSVExportButton
             data={perMonthRows}

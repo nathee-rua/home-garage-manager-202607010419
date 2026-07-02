@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { CalendarClock } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { RenewalsTable } from "@/components/tables/RenewalsTable";
@@ -49,6 +50,7 @@ export default async function RenewalsPage({
       <PageHeader
         title="ต่ออายุ"
         subtitle="ประกันภัย · พ.ร.บ. · ภาษี · ตรวจสภาพ · Renewals"
+        icon={CalendarClock}
         actions={
           <QuickAddSheet vehicles={vehicles} providers={providers} categories={categories} />
         }

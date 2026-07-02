@@ -1,4 +1,4 @@
-import { Car, AlertTriangle, Clock3, CalendarDays } from "lucide-react";
+import { Car, AlertTriangle, Clock3, CalendarDays, LayoutDashboard } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { StatCard } from "@/components/StatCard";
 import { RemindersTable } from "@/components/RemindersTable";
@@ -37,6 +37,7 @@ export default async function DashboardPage() {
       <PageHeader
         title="แดชบอร์ด"
         subtitle="ภาพรวมการดูแลรักษารถทั้งหมด · Overview"
+        icon={LayoutDashboard}
         actions={
           <>
             <QuickAddSheet

@@ -39,6 +39,7 @@ export default async function VehiclesPage() {
       <PageHeader
         title="รถของฉัน"
         subtitle="Vehicles · จัดการรถทั้งหมดในครัวเรือน"
+        icon={Car}
         actions={<VehicleFormDialog />}
       />
       <ConfigBanner />
