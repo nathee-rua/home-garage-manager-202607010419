@@ -7,6 +7,7 @@ import { getBrowserClient } from "@/lib/supabase/client";
 import { createAttachment, deleteAttachment } from "@/app/actions";
 import type { Attachment } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const BUCKET = "attachments";
 
@@ -23,6 +24,7 @@ export function AttachmentUploader({
 }) {
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [previewFile, setPreviewFile] = useState<Attachment | null>(null);
   const [pending, startTransition] = useTransition();
   const inputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -127,16 +129,17 @@ export function AttachmentUploader({
         <ul className="divide-y rounded-lg border">
           {attachments.map((a) => (
             <li key={a.id} className="flex items-center justify-between gap-3 px-4 py-3">
-              <a
-                href={a.file_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex min-w-0 items-center gap-2 text-sm hover:underline"
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  setPreviewFile(a);
+                }}
+                className="flex min-w-0 items-center gap-2 text-sm hover:underline text-left"
               >
                 <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
                 <span className="truncate">{a.file_name ?? "ไฟล์แนบ"}</span>
                 <ExternalLink className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-              </a>
+              </button>
               <div className="flex items-center gap-3">
                 <span className="hidden text-xs text-muted-foreground sm:inline">
                   {formatDate(a.captured_at ?? a.created_at)}
@@ -156,6 +159,43 @@ export function AttachmentUploader({
         </ul>
       ) : (
         <p className="text-sm text-muted-foreground">ยังไม่มีไฟล์แนบ</p>
+      )}
+
+      {previewFile && (
+        <Dialog open={!!previewFile} onOpenChange={(open) => !open && setPreviewFile(null)}>
+          <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto p-4 bg-slate-900 border-slate-800 text-white">
+            <DialogHeader className="border-b border-slate-800 pb-3 flex flex-row items-center justify-between">
+              <DialogTitle className="text-sm font-semibold truncate max-w-[80%]">
+                {previewFile.file_name ?? "ใบเสร็จ / Receipt"}
+              </DialogTitle>
+              <a
+                href={previewFile.file_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-amber-200 hover:underline flex items-center gap-1 shrink-0 ml-4 mr-6"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+                <span>เปิดแท็บใหม่ / Open Tab</span>
+              </a>
+            </DialogHeader>
+            <div className="flex items-center justify-center pt-4 min-h-[300px]">
+              {previewFile.file_type?.startsWith("image/") ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={previewFile.file_url}
+                  alt={previewFile.file_name ?? "Receipt"}
+                  className="max-w-full max-h-[70vh] rounded-lg object-contain shadow-md"
+                />
+              ) : (
+                <iframe
+                  src={previewFile.file_url}
+                  title={previewFile.file_name ?? "PDF Receipt"}
+                  className="w-full h-[60vh] rounded-lg border-0 bg-white"
+                />
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );

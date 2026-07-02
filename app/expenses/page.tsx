@@ -1,5 +1,6 @@
 import { PageHeader } from "@/components/PageHeader";
 import { Receipt } from "lucide-react";
+import { ExpenseChart } from "@/components/ExpenseChart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -168,100 +169,106 @@ export default async function ExpensesPage() {
             </CardContent>
           </Card>
 
-          <div className="grid gap-6 lg:grid-cols-2">
-            <Card>
-              <CardHeader className="flex-row items-center justify-between">
-                <CardTitle className="text-base">ตามหมวด / Per category</CardTitle>
-                <CSVExportButton
-                  data={perCategoryRows}
-                  filename="expenses-by-category"
-                  headers={[
-                    { key: "category", label: "หมวด" },
-                    { key: "total", label: "ยอดรวม (บาท)" },
-                  ]}
-                  label="CSV"
-                />
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>หมวด</TableHead>
-                      <TableHead className="text-right">ยอดรวม</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {perCategoryRows.map((r) => {
-                      const percentage = grandTotal > 0 ? (r.total / grandTotal) * 100 : 0;
-                      return (
-                        <TableRow key={r.category}>
-                          <TableCell>
-                            <div className="font-medium">{r.category}</div>
-                            <div className="mt-1.5 hidden h-1 w-full max-w-[200px] rounded-full bg-slate-100 sm:block">
-                              <div
-                                className="h-1 rounded-full bg-[#c5a880] transition-all"
-                                style={{ width: `${percentage}%` }}
-                              />
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-right tabular-nums">
-                            <span className="font-semibold">{formatTHB(r.total)}</span>
-                            <span className="ml-2 text-xs text-muted-foreground font-normal">({percentage.toFixed(1)}%)</span>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+          <div className="grid gap-6 lg:grid-cols-12">
+            <div className="lg:col-span-6">
+              <Card>
+                <CardHeader className="flex-row items-center justify-between">
+                  <CardTitle className="text-base font-semibold">ตามหมวด / Per category</CardTitle>
+                  <CSVExportButton
+                    data={perCategoryRows}
+                    filename="expenses-by-category"
+                    headers={[
+                      { key: "category", label: "หมวด" },
+                      { key: "total", label: "ยอดรวม (บาท)" },
+                    ]}
+                    label="CSV"
+                  />
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>หมวด</TableHead>
+                        <TableHead className="text-right">ยอดรวม</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {perCategoryRows.map((r) => {
+                        const percentage = grandTotal > 0 ? (r.total / grandTotal) * 100 : 0;
+                        return (
+                          <TableRow key={r.category}>
+                            <TableCell>
+                              <div className="font-medium">{r.category}</div>
+                              <div className="mt-1.5 hidden h-1 w-full max-w-[200px] rounded-full bg-slate-100 sm:block">
+                                <div
+                                  className="h-1 rounded-full bg-[#c5a880] transition-all"
+                                  style={{ width: `${percentage}%` }}
+                                />
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-right tabular-nums">
+                              <span className="font-semibold">{formatTHB(r.total)}</span>
+                              <span className="ml-2 text-xs text-muted-foreground font-normal">({percentage.toFixed(1)}%)</span>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </div>
 
-            <Card>
-              <CardHeader className="flex-row items-center justify-between">
-                <CardTitle className="text-base">ตามเดือน / Per month</CardTitle>
-                <CSVExportButton
-                  data={perMonthRows}
-                  filename="expenses-by-month"
-                  headers={[
-                    { key: "month", label: "เดือน" },
-                    { key: "total", label: "ยอดรวม (บาท)" },
-                  ]}
-                  label="CSV"
-                />
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>เดือน</TableHead>
-                      <TableHead className="text-right">ยอดรวม</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {perMonthRows.map((r) => {
-                      const maxMonthTotal = Math.max(...perMonthRows.map(row => row.total), 1);
-                      const percentage = (r.total / maxMonthTotal) * 100;
-                      return (
-                        <TableRow key={r.month}>
-                          <TableCell>
-                            <div className="font-medium">{r.month}</div>
-                            <div className="mt-1.5 hidden h-1 w-full max-w-[200px] rounded-full bg-slate-100 sm:block">
-                              <div
-                                className="h-1 rounded-full bg-[#c5a880] transition-all"
-                                style={{ width: `${percentage}%` }}
-                              />
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-right tabular-nums font-semibold">
-                            {formatTHB(r.total)}
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+            <div className="lg:col-span-6 space-y-6">
+              <ExpenseChart data={perMonthRows} />
+              
+              <Card>
+                <CardHeader className="flex-row items-center justify-between">
+                  <CardTitle className="text-base font-semibold">ตามเดือน / Per month</CardTitle>
+                  <CSVExportButton
+                    data={perMonthRows}
+                    filename="expenses-by-month"
+                    headers={[
+                      { key: "month", label: "เดือน" },
+                      { key: "total", label: "ยอดรวม (บาท)" },
+                    ]}
+                    label="CSV"
+                  />
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>เดือน</TableHead>
+                        <TableHead className="text-right">ยอดรวม</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {perMonthRows.map((r) => {
+                        const maxMonthTotal = Math.max(...perMonthRows.map(row => row.total), 1);
+                        const percentage = (r.total / maxMonthTotal) * 100;
+                        return (
+                          <TableRow key={r.month}>
+                            <TableCell>
+                              <div className="font-medium">{r.month}</div>
+                              <div className="mt-1.5 hidden h-1 w-full max-w-[200px] rounded-full bg-slate-100 sm:block">
+                                <div
+                                  className="h-1 rounded-full bg-[#c5a880] transition-all"
+                                  style={{ width: `${percentage}%` }}
+                                />
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-right tabular-nums font-semibold">
+                              {formatTHB(r.total)}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </>
       )}

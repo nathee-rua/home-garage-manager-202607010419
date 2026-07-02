@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { navItems } from "@/lib/nav";
 import { Logo } from "@/components/Logo";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -42,8 +43,9 @@ export function Sidebar() {
           );
         })}
       </nav>
-      <div className="border-t border-slate-200/80 p-4 text-[10px] font-medium text-slate-400">
-        เวอร์ชัน 1.0 · Household Garage Manager
+      <div className="border-t border-slate-200/80 p-4 flex items-center justify-between text-[10px] font-medium text-slate-400">
+        <span>เวอร์ชัน 1.0 · Garage IO</span>
+        <ThemeToggle />
       </div>
     </aside>
   );
