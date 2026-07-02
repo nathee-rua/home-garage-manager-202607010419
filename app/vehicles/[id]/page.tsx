@@ -270,23 +270,68 @@ export default async function VehicleDetailPage({
             <CardHeader>
               <CardTitle className="text-base">สรุปค่าใช้จ่ายของรถคันนี้</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 text-sm pt-6">
-              <div className="flex justify-between border-b py-2">
-                <span>ค่าบำรุงรักษา / Maintenance</span>
-                <span className="tabular-nums font-medium">{formatTHB(serviceTotal)}</span>
-              </div>
-              <div className="flex justify-between border-b py-2">
-                <span>ค่าซ่อมแซม / Repairs</span>
-                <span className="tabular-nums font-medium">{formatTHB(repairTotal)}</span>
-              </div>
-              <div className="flex justify-between border-b py-2">
-                <span>ค่าต่ออายุภาษี/พ.ร.บ./ประกันภัย / Renewals</span>
-                <span className="tabular-nums font-medium">{formatTHB(renewalTotal)}</span>
-              </div>
-              <div className="flex justify-between py-2 text-base font-semibold">
-                <span>รวมทั้งหมด / Grand Total</span>
-                <span className="tabular-nums">{formatTHB(serviceTotal + repairTotal + renewalTotal)}</span>
-              </div>
+            <CardContent className="space-y-4 text-sm pt-6">
+              {(() => {
+                const total = serviceTotal + repairTotal + renewalTotal;
+                const pct = (val: number) => (total > 0 ? (val / total) * 100 : 0);
+                
+                return (
+                  <>
+                    <div className="space-y-1.5 border-b pb-3">
+                      <div className="flex justify-between font-medium">
+                        <span>ค่าบำรุงรักษา / Maintenance</span>
+                        <div className="text-right">
+                          <span className="tabular-nums font-semibold">{formatTHB(serviceTotal)}</span>
+                          <span className="ml-2 text-xs text-muted-foreground font-normal">({pct(serviceTotal).toFixed(1)}%)</span>
+                        </div>
+                      </div>
+                      <div className="h-1 w-full rounded-full bg-slate-100">
+                        <div
+                          className="h-1 rounded-full bg-[#c5a880] transition-all duration-500"
+                          style={{ width: `${pct(serviceTotal)}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5 border-b pb-3">
+                      <div className="flex justify-between font-medium">
+                        <span>ค่าซ่อมแซม / Repairs</span>
+                        <div className="text-right">
+                          <span className="tabular-nums font-semibold">{formatTHB(repairTotal)}</span>
+                          <span className="ml-2 text-xs text-muted-foreground font-normal">({pct(repairTotal).toFixed(1)}%)</span>
+                        </div>
+                      </div>
+                      <div className="h-1 w-full rounded-full bg-slate-100">
+                        <div
+                          className="h-1 rounded-full bg-[#c5a880] transition-all duration-500"
+                          style={{ width: `${pct(repairTotal)}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5 border-b pb-3">
+                      <div className="flex justify-between font-medium">
+                        <span>ค่าต่ออายุภาษี/พ.ร.บ./ประกันภัย / Renewals</span>
+                        <div className="text-right">
+                          <span className="tabular-nums font-semibold">{formatTHB(renewalTotal)}</span>
+                          <span className="ml-2 text-xs text-muted-foreground font-normal">({pct(renewalTotal).toFixed(1)}%)</span>
+                        </div>
+                      </div>
+                      <div className="h-1 w-full rounded-full bg-slate-100">
+                        <div
+                          className="h-1 rounded-full bg-[#c5a880] transition-all duration-500"
+                          style={{ width: `${pct(renewalTotal)}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between pt-2 text-base font-bold text-slate-900">
+                      <span>รวมทั้งหมด / Grand Total</span>
+                      <span className="tabular-nums">{formatTHB(total)}</span>
+                    </div>
+                  </>
+                );
+              })()}
             </CardContent>
           </Card>
         </TabsContent>
