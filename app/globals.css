@@ -4,43 +4,42 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222 32% 12%;
+    --background: 36 20% 97%;
+    --foreground: 220 20% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222 32% 12%;
+    --card-foreground: 220 20% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 32% 12%;
+    --popover-foreground: 220 20% 12%;
 
-    /* Deep slate primary — mechanical, precise garage feel */
-    --primary: 222 40% 20%;
-    --primary-foreground: 210 40% 98%;
+    /* Premium Slate Charcoal */
+    --primary: 220 20% 12%;
+    --primary-foreground: 36 20% 98%;
 
-    --secondary: 210 30% 96%;
-    --secondary-foreground: 222 32% 18%;
+    --secondary: 36 10% 92%;
+    --secondary-foreground: 220 20% 12%;
 
-    --muted: 210 30% 96%;
-    --muted-foreground: 215 16% 45%;
+    --muted: 36 10% 93%;
+    --muted-foreground: 220 10% 45%;
 
-    /* Warm amber accent (garage / tools) */
-    --accent: 32 95% 94%;
-    --accent-foreground: 28 80% 28%;
+    --accent: 36 15% 90%;
+    --accent-foreground: 220 20% 12%;
 
-    --destructive: 0 72% 48%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
 
-    --success: 142 55% 38%;
+    --success: 150 60% 35%;
     --success-foreground: 0 0% 100%;
 
     --warning: 38 92% 45%;
     --warning-foreground: 0 0% 100%;
 
-    --border: 214 24% 90%;
-    --input: 214 24% 88%;
-    --ring: 32 90% 48%;
+    --border: 36 12% 88%;
+    --input: 36 12% 86%;
+    --ring: 220 20% 12%;
 
-    --radius: 0.6rem;
+    --radius: 0.75rem;
   }
 }
 

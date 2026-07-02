@@ -14,13 +14,13 @@ export function Sidebar() {
 
   return (
     <aside className="hidden w-64 shrink-0 border-r bg-card md:flex md:flex-col">
-      <div className="flex h-16 items-center gap-2.5 border-b px-6">
+      <Link href="/" className="flex h-16 items-center gap-2.5 border-b px-6 hover:opacity-85 transition-opacity">
         <Logo className="h-7 w-7 text-primary" />
         <div className="leading-tight">
           <p className="text-sm font-semibold">โฮมการาจ</p>
           <p className="text-[11px] text-muted-foreground">Home Garage Manager</p>
         </div>
-      </div>
+      </Link>
       <nav className="flex-1 space-y-1 p-3">
         {navItems.map((item) => {
           const Icon = item.icon;
