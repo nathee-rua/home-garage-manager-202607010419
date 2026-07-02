@@ -43,6 +43,7 @@ import { formatDate, formatTHB } from "@/lib/utils";
 import { deleteServiceRule, deleteVehicle } from "@/app/actions";
 import { PlannedJobForm } from "@/components/forms/PlannedJobForm";
 import { PlannedJobsTable } from "@/components/tables/PlannedJobsTable";
+import { VehicleReportTab } from "@/components/forms/VehicleReportTab";
 
 export const dynamic = "force-dynamic";
 
@@ -120,6 +121,7 @@ export default async function VehicleDetailPage({
           <TabsTrigger value="planned">แผนงาน</TabsTrigger>
           <TabsTrigger value="expenses">ค่าใช้จ่าย</TabsTrigger>
           <TabsTrigger value="attachments">เอกสารแนบ</TabsTrigger>
+          <TabsTrigger value="report">รายงาน</TabsTrigger>
         </TabsList>
 
         {/* Overview */}
@@ -274,6 +276,18 @@ export default async function VehicleDetailPage({
               />
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Reports */}
+        <TabsContent value="report">
+          <VehicleReportTab
+            vehicle={vehicle}
+            services={events}
+            repairs={repairs}
+            renewals={renewals}
+            providers={providers}
+            categories={categories}
+          />
         </TabsContent>
       </Tabs>
     </div>
