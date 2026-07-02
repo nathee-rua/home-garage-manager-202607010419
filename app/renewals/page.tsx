@@ -6,7 +6,13 @@ import { QuickAddSheet } from "@/components/QuickAddSheet";
 import { VehicleFilter } from "@/components/Filters";
 import { ConfigBanner } from "@/components/ConfigBanner";
 import { StatCard } from "@/components/StatCard";
-import { getRenewals, getVehicles, getProviders, getServiceCategories } from "@/lib/queries";
+import {
+  getRenewals,
+  getVehicles,
+  getProviders,
+  getServiceCategories,
+  getVehicleRelatedAttachments,
+} from "@/lib/queries";
 import { computeStatus } from "@/lib/dueEngine";
 
 export const dynamic = "force-dynamic";
@@ -22,6 +28,8 @@ export default async function RenewalsPage({
     getServiceCategories(),
   ]);
   const renewals = await getRenewals(searchParams.vehicle);
+  const eventIds = renewals.map((r) => r.id);
+  const attachments = await getVehicleRelatedAttachments("", eventIds);
 
   let overdue = 0;
   let dueSoon = 0;
@@ -62,7 +70,12 @@ export default async function RenewalsPage({
       </div>
       <Card>
         <CardContent className="pt-6">
-          <RenewalsTable renewals={renewals} vehicles={vehicles} showVehicle />
+           <RenewalsTable
+            renewals={renewals}
+            vehicles={vehicles}
+            attachments={attachments}
+            showVehicle
+          />
         </CardContent>
       </Card>
     </div>

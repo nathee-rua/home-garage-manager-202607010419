@@ -11,18 +11,21 @@ import { EmptyState } from "@/components/EmptyState";
 import { DeleteButton } from "@/components/DeleteButton";
 import { formatDate, formatTHB } from "@/lib/utils";
 import { repairUrgencyLabels } from "@/lib/labels";
-import type { RepairEvent, Vehicle, Provider } from "@/lib/types";
+import type { RepairEvent, Vehicle, Provider, Attachment } from "@/lib/types";
 import { deleteRepairEvent } from "@/app/actions";
+import { ReceiptManager } from "@/components/ReceiptManager";
 
 export function RepairEventsTable({
   events,
   vehicles,
   providers,
+  attachments = [],
   showVehicle = false,
 }: {
   events: RepairEvent[];
   vehicles?: Vehicle[];
   providers?: Provider[];
+  attachments?: Attachment[];
   showVehicle?: boolean;
 }) {
   if (events.length === 0) {
@@ -47,6 +50,7 @@ export function RepairEventsTable({
           <TableHead className="hidden md:table-cell">ความเร่งด่วน</TableHead>
           <TableHead className="hidden lg:table-cell">ร้าน</TableHead>
           <TableHead className="text-right">ค่าใช้จ่าย</TableHead>
+          <TableHead className="w-24 text-center">ใบเสร็จ</TableHead>
           <TableHead className="w-10" />
         </TableRow>
       </TableHeader>
@@ -69,6 +73,14 @@ export function RepairEventsTable({
             <TableCell className="hidden lg:table-cell">{pName(e.provider_id)}</TableCell>
             <TableCell className="text-right tabular-nums">
               {formatTHB(Number(e.total_cost))}
+            </TableCell>
+            <TableCell className="text-center">
+              <ReceiptManager
+                entityType="repair_event"
+                entityId={e.id}
+                vehicleId={e.vehicle_id}
+                attachments={attachments.filter((a) => a.entity_id === e.id)}
+              />
             </TableCell>
             <TableCell>
               <DeleteButton action={deleteRepairEvent.bind(null, e.id)} />

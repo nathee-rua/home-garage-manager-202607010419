@@ -14,16 +14,19 @@ import { RenewalStatusControl } from "@/components/RenewalStatusControl";
 import { formatDate, formatTHB, daysUntil } from "@/lib/utils";
 import { renewalTypeLabels } from "@/lib/labels";
 import { computeStatus } from "@/lib/dueEngine";
-import type { Renewal, Vehicle } from "@/lib/types";
+import type { Renewal, Vehicle, Attachment } from "@/lib/types";
 import { deleteRenewal } from "@/app/actions";
+import { ReceiptManager } from "@/components/ReceiptManager";
 
 export function RenewalsTable({
   renewals,
   vehicles,
+  attachments = [],
   showVehicle = false,
 }: {
   renewals: Renewal[];
   vehicles?: Vehicle[];
+  attachments?: Attachment[];
   showVehicle?: boolean;
 }) {
   if (renewals.length === 0) {
@@ -43,6 +46,7 @@ export function RenewalsTable({
           {showVehicle ? <TableHead>รถ</TableHead> : null}
           <TableHead className="hidden sm:table-cell">ครบกำหนด</TableHead>
           <TableHead className="text-right">ประมาณการ</TableHead>
+          <TableHead className="w-24 text-center">ใบเสร็จ</TableHead>
           <TableHead className="w-40 text-right">จัดการ</TableHead>
         </TableRow>
       </TableHeader>
@@ -78,6 +82,14 @@ export function RenewalsTable({
               </TableCell>
               <TableCell className="text-right tabular-nums">
                 {formatTHB(Number(r.cost_estimate))}
+              </TableCell>
+              <TableCell className="text-center">
+                <ReceiptManager
+                  entityType="renewal"
+                  entityId={r.id}
+                  vehicleId={r.vehicle_id}
+                  attachments={attachments.filter((a) => a.entity_id === r.id)}
+                />
               </TableCell>
               <TableCell>
                 <div className="flex items-center justify-end gap-1">

@@ -33,7 +33,7 @@ import {
   getRenewals,
   getProviders,
   getServiceCategories,
-  getAttachments,
+  getVehicleRelatedAttachments,
   getPlannedJobs,
   getFuelTypes,
 } from "@/lib/queries";
@@ -55,7 +55,7 @@ export default async function VehicleDetailPage({
   const vehicle = await getVehicle(params.id);
   if (!vehicle) notFound();
 
-  const [rules, events, repairs, renewals, providers, categories, attachments, plannedJobs, fuelTypes] =
+  const [rules, events, repairs, renewals, providers, categories, plannedJobs, fuelTypes] =
     await Promise.all([
       getServiceRules(params.id),
       getServiceEvents(params.id),
@@ -63,10 +63,21 @@ export default async function VehicleDetailPage({
       getRenewals(params.id),
       getProviders(),
       getServiceCategories(),
-      getAttachments("vehicle", params.id),
       getPlannedJobs(params.id),
       getFuelTypes(),
     ]);
+
+  const eventIds = [
+    ...events.map((e) => e.id),
+    ...repairs.map((r) => r.id),
+    ...renewals.map((rn) => rn.id),
+  ];
+  const allAttachments = await getVehicleRelatedAttachments(params.id, eventIds);
+
+  const vehicleAttachments = allAttachments.filter((a) => a.entity_type === "vehicle");
+  const serviceAttachments = allAttachments.filter((a) => a.entity_type === "service_event");
+  const repairAttachments = allAttachments.filter((a) => a.entity_type === "repair_event");
+  const renewalAttachments = allAttachments.filter((a) => a.entity_type === "renewal");
 
   const serviceTotal = events.reduce(
     (s, e) => s + Number(e.cost_parts) + Number(e.cost_labor) + Number(e.cost_misc),
@@ -208,6 +219,7 @@ export default async function VehicleDetailPage({
                 events={events}
                 categories={categories}
                 providers={providers}
+                attachments={serviceAttachments}
               />
             </CardContent>
           </Card>
@@ -217,7 +229,11 @@ export default async function VehicleDetailPage({
         <TabsContent value="repairs">
           <Card>
             <CardContent className="pt-6">
-              <RepairEventsTable events={repairs} providers={providers} />
+              <RepairEventsTable
+                events={repairs}
+                providers={providers}
+                attachments={repairAttachments}
+              />
             </CardContent>
           </Card>
         </TabsContent>
@@ -226,7 +242,10 @@ export default async function VehicleDetailPage({
         <TabsContent value="renewals">
           <Card>
             <CardContent className="pt-6">
-              <RenewalsTable renewals={renewals} />
+              <RenewalsTable
+                renewals={renewals}
+                attachments={renewalAttachments}
+              />
             </CardContent>
           </Card>
         </TabsContent>
@@ -272,7 +291,7 @@ export default async function VehicleDetailPage({
                 entityType="vehicle"
                 entityId={vehicle.id}
                 vehicleId={vehicle.id}
-                attachments={attachments}
+                attachments={vehicleAttachments}
               />
             </CardContent>
           </Card>

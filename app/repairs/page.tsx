@@ -10,6 +10,7 @@ import {
   getVehicles,
   getProviders,
   getServiceCategories,
+  getVehicleRelatedAttachments,
 } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
@@ -25,6 +26,8 @@ export default async function RepairsPage({
     getServiceCategories(),
   ]);
   const events = await getRepairEvents(searchParams.vehicle);
+  const eventIds = events.map((e) => e.id);
+  const attachments = await getVehicleRelatedAttachments("", eventIds);
 
   return (
     <div className="space-y-6">
@@ -47,6 +50,7 @@ export default async function RepairsPage({
             events={events}
             vehicles={vehicles}
             providers={providers}
+            attachments={attachments}
             showVehicle
           />
         </CardContent>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition, useRef } from "react";
-import { Upload, Loader2, Trash2, FileText, ExternalLink } from "lucide-react";
+import { Upload, Camera, Loader2, Trash2, FileText, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getBrowserClient } from "@/lib/supabase/client";
 import { createAttachment, deleteAttachment } from "@/app/actions";
@@ -25,6 +25,7 @@ export function AttachmentUploader({
   const [uploading, setUploading] = useState(false);
   const [pending, startTransition] = useTransition();
   const inputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -68,6 +69,7 @@ export function AttachmentUploader({
   return (
     <div className="space-y-4">
       <div>
+        {/* Hidden inputs */}
         <input
           ref={inputRef}
           type="file"
@@ -75,21 +77,49 @@ export function AttachmentUploader({
           onChange={onFile}
           accept="image/*,application/pdf"
         />
-        <Button
-          variant="outline"
-          onClick={() => inputRef.current?.click()}
-          disabled={uploading}
-        >
-          {uploading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Upload className="h-4 w-4" />
-          )}
-          อัปโหลดไฟล์ / เอกสาร
-        </Button>
+        <input
+          ref={cameraInputRef}
+          type="file"
+          className="hidden"
+          onChange={onFile}
+          accept="image/*"
+          capture="environment"
+        />
+
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            onClick={() => inputRef.current?.click()}
+            disabled={uploading}
+            type="button"
+          >
+            {uploading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Upload className="h-4 w-4" />
+            )}
+            อัปโหลดไฟล์ / PDF / รูปภาพ
+          </Button>
+
+          <Button
+            variant="outline"
+            onClick={() => cameraInputRef.current?.click()}
+            disabled={uploading}
+            type="button"
+            className="gap-1.5"
+          >
+            {uploading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Camera className="h-4 w-4" />
+            )}
+            ถ่ายภาพใบเสร็จ / Camera
+          </Button>
+        </div>
+
         {error ? <p className="mt-2 text-sm text-destructive">{error}</p> : null}
-        <p className="mt-2 text-xs text-muted-foreground">
-          รองรับรูปภาพและ PDF · เก็บใน Storage bucket &quot;{BUCKET}&quot;
+        <p className="mt-2 text-[11px] text-muted-foreground">
+          รองรับไฟล์ PDF, รูปภาพทั่วไป หรือถ่ายจากกล้องมือถือโดยตรง · เก็บใน Storage bucket &quot;{BUCKET}&quot;
         </p>
       </div>
 

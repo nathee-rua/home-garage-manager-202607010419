@@ -122,3 +122,19 @@ export async function getUserSettings(): Promise<UserSettings | null> {
     .maybeSingle();
   return (data as UserSettings) ?? null;
 }
+
+export async function getVehicleRelatedAttachments(
+  vehicleId: string,
+  eventIds: string[]
+): Promise<Attachment[]> {
+  const sb = getServerClient();
+  if (!sb) return [];
+  const ids = [vehicleId, ...eventIds];
+  const { data } = await sb
+    .from("attachments")
+    .select("*")
+    .in("entity_id", ids)
+    .order("created_at", { ascending: false });
+  return (data as Attachment[]) ?? [];
+}
+
