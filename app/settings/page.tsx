@@ -16,6 +16,7 @@ import { NotificationSettingsForm } from "@/components/forms/NotificationSetting
 import { DeleteButton } from "@/components/DeleteButton";
 import { getFuelTypes, getServiceCategories, getUserSettings } from "@/lib/queries";
 import { deleteFuelType, deleteServiceCategory } from "@/app/actions";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   getSupabaseUrl,
   getSupabaseAnonKey,
@@ -64,13 +65,34 @@ export default async function SettingsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="ตั้งค่า" subtitle="Settings · สถานะการเชื่อมต่อและการแจ้งเตือน" />
+      <PageHeader title="ตั้งค่า" subtitle="Settings · กำหนดค่าระบบและการแจ้งเตือนครบวงจร" />
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">สถานะ Environment Variables</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <Tabs defaultValue="env" className="space-y-6">
+        <TabsList className="flex flex-wrap w-full bg-slate-100/80 p-1 border rounded-xl h-auto gap-1">
+          <TabsTrigger value="env" className="flex-1 py-2.5 px-3 text-xs md:text-sm font-medium gap-2 flex items-center justify-center rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">
+            <Settings2 className="h-4 w-4 text-muted-foreground" />
+            <span>เชื่อมต่อระบบ / System</span>
+          </TabsTrigger>
+          <TabsTrigger value="notifications" className="flex-1 py-2.5 px-3 text-xs md:text-sm font-medium gap-2 flex items-center justify-center rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">
+            <Bell className="h-4 w-4 text-muted-foreground" />
+            <span>ตั้งค่าแจ้งเตือน / Alert</span>
+          </TabsTrigger>
+          <TabsTrigger value="fuels" className="flex-1 py-2.5 px-3 text-xs md:text-sm font-medium gap-2 flex items-center justify-center rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">
+            <Fuel className="h-4 w-4 text-muted-foreground" />
+            <span>ประเภทเชื้อเพลิง / Fuel</span>
+          </TabsTrigger>
+          <TabsTrigger value="categories" className="flex-1 py-2.5 px-3 text-xs md:text-sm font-medium gap-2 flex items-center justify-center rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">
+            <Wrench className="h-4 w-4 text-muted-foreground" />
+            <span>หมวดบำรุงรักษา / Categories</span>
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="env" className="space-y-4 outline-none">
+          <Card className="border border-slate-200/80 shadow-sm">
+            <CardHeader className="border-b pb-4">
+              <CardTitle className="text-base font-semibold">สถานะ Environment Variables</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
           <EnvRow
             name="NEXT_PUBLIC_SUPABASE_URL"
             ok={present(url) && url.startsWith("http")}
@@ -113,29 +135,33 @@ export default async function SettingsPage() {
               </div>
             )}
           </div>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-      {/* Notification Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Bell className="h-4 w-4 text-primary" /> ตั้งค่าการแจ้งเตือน / Notifications Configuration
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <NotificationSettingsForm settings={settings} />
-        </CardContent>
-      </Card>
+        <TabsContent value="notifications" className="outline-none">
+          {/* Notification Settings */}
+          <Card className="border border-slate-200/80 shadow-sm">
+            <CardHeader className="border-b pb-4">
+              <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                <Bell className="h-4 w-4 text-primary" /> ตั้งค่าการแจ้งเตือน / Notifications Configuration
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <NotificationSettingsForm settings={settings} />
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-      {/* Fuel Types Management */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Fuel className="h-4 w-4" /> จัดการประเภทเชื้อเพลิง / Fuel Types
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+        <TabsContent value="fuels" className="outline-none">
+          {/* Fuel Types Management */}
+          <Card className="border border-slate-200/80 shadow-sm">
+            <CardHeader className="border-b pb-4">
+              <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                <Fuel className="h-4 w-4" /> จัดการประเภทเชื้อเพลิง / Fuel Types
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 pt-6">
           <FuelTypeForm />
           {fuelTypes.length === 0 ? (
             <p className="text-sm text-muted-foreground">
@@ -173,17 +199,19 @@ export default async function SettingsPage() {
               </TableBody>
             </Table>
           )}
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-      {/* Service Categories Management */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Wrench className="h-4 w-4" /> จัดการหมวดบำรุงรักษา / Service Categories
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+        <TabsContent value="categories" className="outline-none">
+          {/* Service Categories Management */}
+          <Card className="border border-slate-200/80 shadow-sm">
+            <CardHeader className="border-b pb-4">
+              <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                <Wrench className="h-4 w-4" /> จัดการหมวดบำรุงรักษา / Service Categories
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 pt-6">
           <ServiceCategoryForm />
           {categories.length === 0 ? (
             <p className="text-sm text-muted-foreground">
@@ -245,24 +273,10 @@ export default async function SettingsPage() {
               </TableBody>
             </Table>
           )}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Bell className="h-4 w-4" /> การแจ้งเตือน (Notifications)
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2 text-sm text-muted-foreground">
-          <p>
-            การแจ้งเตือนทางอีเมลผ่าน Resend เป็นฟีเจอร์ที่วางโครงไว้สำหรับเวอร์ชันถัดไป
-            (v2). เมื่อกำหนดค่า <code>RESEND_API_KEY</code> แล้ว
-            สามารถต่อยอดเป็น cron job รายวันเพื่อส่งสรุปรายการที่ใกล้ถึงกำหนด/เกินกำหนดได้
-          </p>
-          <Badge variant="secondary">เร็วๆ นี้ / Coming soon</Badge>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
