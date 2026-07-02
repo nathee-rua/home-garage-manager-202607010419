@@ -1,6 +1,14 @@
 // Shared domain types for Home Garage Manager.
 
-export type FuelType = "gasoline" | "hybrid" | "phev" | "ev";
+export type FuelType = "gasoline" | "diesel" | "ev" | "hybrid" | "lpg" | "cng" | string;
+
+export interface FuelTypeRecord {
+  code: string;
+  label_th: string;
+  label_en: string;
+  sort_order: number;
+}
+
 export type RenewalType =
   | "insurance"
   | "compulsory_insurance"
@@ -29,7 +37,7 @@ export interface Vehicle {
   year: number | null;
   plate_no: string | null;
   vin: string | null;
-  fuel_type: FuelType;
+  fuel_type: string;
   odometer: number;
   odometer_unit: string;
   purchase_date: string | null;
@@ -128,4 +136,8 @@ export interface ServiceCategory {
   label_th: string;
   label_en: string;
   ev_relevant: boolean;
+  default_interval_km: number | null;
+  default_interval_months: number | null;
+  is_user_defined: boolean;
+  user_id: string | null;
 }

@@ -1,6 +1,5 @@
 // Bilingual (TH primary / EN secondary) labels for enums and UI copy.
 import type {
-  FuelType,
   RenewalType,
   RenewalStatus,
   RepairUrgency,
@@ -8,8 +7,9 @@ import type {
   ProviderType,
 } from "./types";
 
-export const fuelTypeLabels: Record<FuelType, { th: string; en: string }> = {
-  gasoline: { th: "น้ำมัน", en: "Gasoline" },
+export const fuelTypeLabels: Record<string, { th: string; en: string }> = {
+  gasoline: { th: "น้ำมันเบนซิน", en: "Gasoline" },
+  diesel: { th: "ดีเซล", en: "Diesel" },
   hybrid: { th: "ไฮบริด", en: "Hybrid" },
   phev: { th: "ปลั๊กอินไฮบริด", en: "PHEV" },
   ev: { th: "ไฟฟ้า", en: "EV" },

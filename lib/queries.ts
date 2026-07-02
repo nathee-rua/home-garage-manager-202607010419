@@ -11,6 +11,7 @@ import type {
   Provider,
   Attachment,
   ServiceCategory,
+  FuelTypeRecord,
 } from "./types";
 
 export async function getVehicles(): Promise<Vehicle[]> {
@@ -99,4 +100,11 @@ export async function getServiceCategories(): Promise<ServiceCategory[]> {
   if (!sb) return [];
   const { data } = await sb.from("service_categories").select("*").order("code");
   return (data as ServiceCategory[]) ?? [];
+}
+
+export async function getFuelTypes(): Promise<FuelTypeRecord[]> {
+  const sb = getServerClient();
+  if (!sb) return [];
+  const { data } = await sb.from("fuel_types").select("*").order("sort_order");
+  return (data as FuelTypeRecord[]) ?? [];
 }

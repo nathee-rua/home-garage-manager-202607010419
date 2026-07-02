@@ -1,7 +1,20 @@
-import { CheckCircle2, XCircle, Bell } from "lucide-react";
+import { CheckCircle2, XCircle, Bell, Fuel, Wrench, Settings2 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { FuelTypeForm } from "@/components/forms/FuelTypeForm";
+import { ServiceCategoryForm } from "@/components/forms/ServiceCategoryForm";
+import { DeleteButton } from "@/components/DeleteButton";
+import { getFuelTypes, getServiceCategories } from "@/lib/queries";
+import { deleteFuelType, deleteServiceCategory } from "@/app/actions";
 import {
   getSupabaseUrl,
   getSupabaseAnonKey,
@@ -35,12 +48,17 @@ function EnvRow({ name, ok, hint }: { name: string; ok: boolean; hint: string })
   );
 }
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
   const url = getSupabaseUrl();
   const anon = getSupabaseAnonKey();
   const service = getSupabaseServiceKey();
   const resend = process.env.RESEND_API_KEY ?? "";
   const configured = isSupabaseConfigured();
+
+  const [fuelTypes, categories] = await Promise.all([
+    getFuelTypes(),
+    getServiceCategories(),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -93,6 +111,126 @@ export default function SettingsPage() {
               </div>
             )}
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Fuel Types Management */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Fuel className="h-4 w-4" /> จัดการประเภทเชื้อเพลิง / Fuel Types
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <FuelTypeForm />
+          {fuelTypes.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              ยังไม่มีข้อมูลประเภทเชื้อเพลิง
+            </p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Code</TableHead>
+                  <TableHead>ชื่อไทย</TableHead>
+                  <TableHead>ชื่ออังกฤษ</TableHead>
+                  <TableHead className="text-right">ลำดับ</TableHead>
+                  <TableHead className="w-20" />
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {fuelTypes.map((ft) => (
+                  <TableRow key={ft.code}>
+                    <TableCell className="font-mono text-sm">{ft.code}</TableCell>
+                    <TableCell>{ft.label_th}</TableCell>
+                    <TableCell>{ft.label_en}</TableCell>
+                    <TableCell className="text-right tabular-nums">{ft.sort_order}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        <FuelTypeForm fuelType={ft} />
+                        <DeleteButton
+                          action={deleteFuelType.bind(null, ft.code)}
+                          confirmText={`ลบประเภทเชื้อเพลิง "${ft.label_th}" ?`}
+                        />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Service Categories Management */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Wrench className="h-4 w-4" /> จัดการหมวดบำรุงรักษา / Service Categories
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <ServiceCategoryForm />
+          {categories.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              ยังไม่มีข้อมูลหมวดบำรุงรักษา
+            </p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Code</TableHead>
+                  <TableHead>ชื่อไทย</TableHead>
+                  <TableHead>ชื่ออังกฤษ</TableHead>
+                  <TableHead>EV</TableHead>
+                  <TableHead className="hidden sm:table-cell">กม.</TableHead>
+                  <TableHead className="hidden sm:table-cell">เดือน</TableHead>
+                  <TableHead className="hidden md:table-cell">ประเภท</TableHead>
+                  <TableHead className="w-20" />
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {categories.map((cat) => (
+                  <TableRow key={cat.code}>
+                    <TableCell className="font-mono text-sm">{cat.code}</TableCell>
+                    <TableCell>{cat.label_th}</TableCell>
+                    <TableCell>{cat.label_en}</TableCell>
+                    <TableCell>
+                      {cat.ev_relevant ? (
+                        <Badge variant="secondary">EV</Badge>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell tabular-nums">
+                      {cat.default_interval_km ?? "-"}
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell tabular-nums">
+                      {cat.default_interval_months ?? "-"}
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      {cat.is_user_defined ? (
+                        <Badge variant="outline">กำหนดเอง</Badge>
+                      ) : (
+                        <Badge variant="secondary">ค่าเริ่มต้น</Badge>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        <ServiceCategoryForm category={cat} />
+                        {cat.is_user_defined ? (
+                          <DeleteButton
+                            action={deleteServiceCategory.bind(null, cat.code)}
+                            confirmText={`ลบหมวด "${cat.label_th}" ?`}
+                          />
+                        ) : null}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
 

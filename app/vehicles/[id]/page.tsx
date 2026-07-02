@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Wrench } from "lucide-react";
+import { ArrowLeft, Wrench, Pencil } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +10,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { QuickAddSheet } from "@/components/QuickAddSheet";
 import { OdometerEditor } from "@/components/OdometerEditor";
 import { ServiceRuleForm } from "@/components/forms/ServiceRuleForm";
+import { VehicleFormDialog } from "@/components/forms/VehicleFormDialog";
 import { ServiceEventsTable } from "@/components/tables/ServiceEventsTable";
 import { RepairEventsTable } from "@/components/tables/RepairEventsTable";
 import { RenewalsTable } from "@/components/tables/RenewalsTable";
@@ -34,6 +35,7 @@ import {
   getServiceCategories,
   getAttachments,
   getPlannedJobs,
+  getFuelTypes,
 } from "@/lib/queries";
 import { fuelTypeLabels } from "@/lib/labels";
 import { serviceCategoryLabelFull } from "@/lib/categoryLabels";
@@ -52,7 +54,7 @@ export default async function VehicleDetailPage({
   const vehicle = await getVehicle(params.id);
   if (!vehicle) notFound();
 
-  const [rules, events, repairs, renewals, providers, categories, attachments, plannedJobs] =
+  const [rules, events, repairs, renewals, providers, categories, attachments, plannedJobs, fuelTypes] =
     await Promise.all([
       getServiceRules(params.id),
       getServiceEvents(params.id),
@@ -62,6 +64,7 @@ export default async function VehicleDetailPage({
       getServiceCategories(),
       getAttachments("vehicle", params.id),
       getPlannedJobs(params.id),
+      getFuelTypes(),
     ]);
 
   const serviceTotal = events.reduce(
@@ -91,6 +94,7 @@ export default async function VehicleDetailPage({
               defaultVehicleId={vehicle.id}
               label="บันทึกด่วน"
             />
+            <VehicleFormDialog vehicle={vehicle} fuelTypes={fuelTypes} />
             <DeleteButton
               action={deleteVehicle.bind(null, vehicle.id)}
               confirmText="ลบรถคันนี้และข้อมูลทั้งหมด?"

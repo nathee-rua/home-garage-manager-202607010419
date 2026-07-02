@@ -38,6 +38,7 @@ function revalidateAll() {
     "/renewals",
     "/expenses",
     "/providers",
+    "/settings",
   ]) {
     revalidatePath(p);
   }
@@ -312,5 +313,149 @@ export async function deletePlannedJob(id: string, vehicleId: string): Promise<A
   if (error) return { ok: false, error: error.message };
   revalidateAll();
   revalidatePath(`/vehicles/${vehicleId}`);
+  return { ok: true };
+}
+
+// ── Vehicle Update ──
+export async function updateVehicle(id: string, formData: FormData): Promise<ActionResult> {
+  const { sb, err } = requireClient();
+  if (!sb) return { ok: false, error: err! };
+  const { error } = await sb
+    .from("vehicles")
+    .update({
+      brand: str(formData.get("brand"))!,
+      model: str(formData.get("model"))!,
+      year: num(formData.get("year")),
+      plate_no: str(formData.get("plate_no")),
+      vin: str(formData.get("vin")),
+      fuel_type: str(formData.get("fuel_type")) ?? "gasoline",
+      odometer: num(formData.get("odometer")) ?? 0,
+      purchase_date: str(formData.get("purchase_date")),
+      note: str(formData.get("note")),
+    })
+    .eq("id", id);
+  if (error) return { ok: false, error: error.message };
+  revalidateAll();
+  revalidatePath(`/vehicles/${id}`);
+  return { ok: true };
+}
+
+// ── Provider Update ──
+export async function updateProvider(id: string, formData: FormData): Promise<ActionResult> {
+  const { sb, err } = requireClient();
+  if (!sb) return { ok: false, error: err! };
+  const { error } = await sb
+    .from("providers")
+    .update({
+      name: str(formData.get("name"))!,
+      type: str(formData.get("type")) ?? "dealer",
+      branch: str(formData.get("branch")),
+      phone: str(formData.get("phone")),
+      line_contact: str(formData.get("line_contact")),
+      note: str(formData.get("note")),
+    })
+    .eq("id", id);
+  if (error) return { ok: false, error: error.message };
+  revalidateAll();
+  return { ok: true };
+}
+
+// ── Fuel Types CRUD ──
+export async function createFuelType(formData: FormData): Promise<ActionResult> {
+  const { sb, err } = requireClient();
+  if (!sb) return { ok: false, error: err! };
+  const { error } = await sb.from("fuel_types").insert({
+    code: str(formData.get("code"))!,
+    label_th: str(formData.get("label_th"))!,
+    label_en: str(formData.get("label_en"))!,
+    sort_order: num(formData.get("sort_order")) ?? 0,
+  });
+  if (error) return { ok: false, error: error.message };
+  revalidateAll();
+  return { ok: true };
+}
+
+export async function updateFuelType(code: string, formData: FormData): Promise<ActionResult> {
+  const { sb, err } = requireClient();
+  if (!sb) return { ok: false, error: err! };
+  const { error } = await sb
+    .from("fuel_types")
+    .update({
+      label_th: str(formData.get("label_th"))!,
+      label_en: str(formData.get("label_en"))!,
+      sort_order: num(formData.get("sort_order")) ?? 0,
+    })
+    .eq("code", code);
+  if (error) return { ok: false, error: error.message };
+  revalidateAll();
+  return { ok: true };
+}
+
+export async function deleteFuelType(code: string): Promise<ActionResult> {
+  const { sb, err } = requireClient();
+  if (!sb) return { ok: false, error: err! };
+  const { count } = await sb
+    .from("vehicles")
+    .select("id", { count: "exact", head: true })
+    .eq("fuel_type", code);
+  if (count && count > 0) {
+    return { ok: false, error: `ไม่สามารถลบได้ มีรถยนต์ ${count} คันที่ใช้ประเภทเชื้อเพลิงนี้อยู่` };
+  }
+  const { error } = await sb.from("fuel_types").delete().eq("code", code);
+  if (error) return { ok: false, error: error.message };
+  revalidateAll();
+  return { ok: true };
+}
+
+// ── Service Categories CRUD ──
+export async function createServiceCategory(formData: FormData): Promise<ActionResult> {
+  const { sb, err } = requireClient();
+  if (!sb) return { ok: false, error: err! };
+  const { error } = await sb.from("service_categories").insert({
+    code: str(formData.get("code"))!,
+    label_th: str(formData.get("label_th"))!,
+    label_en: str(formData.get("label_en"))!,
+    ev_relevant: formData.get("ev_relevant") === "true",
+    default_interval_km: num(formData.get("default_interval_km")),
+    default_interval_months: num(formData.get("default_interval_months")),
+    is_user_defined: true,
+  });
+  if (error) return { ok: false, error: error.message };
+  revalidateAll();
+  return { ok: true };
+}
+
+export async function updateServiceCategory(code: string, formData: FormData): Promise<ActionResult> {
+  const { sb, err } = requireClient();
+  if (!sb) return { ok: false, error: err! };
+  const { error } = await sb
+    .from("service_categories")
+    .update({
+      label_th: str(formData.get("label_th"))!,
+      label_en: str(formData.get("label_en"))!,
+      ev_relevant: formData.get("ev_relevant") === "true",
+      default_interval_km: num(formData.get("default_interval_km")),
+      default_interval_months: num(formData.get("default_interval_months")),
+    })
+    .eq("code", code);
+  if (error) return { ok: false, error: error.message };
+  revalidateAll();
+  return { ok: true };
+}
+
+export async function deleteServiceCategory(code: string): Promise<ActionResult> {
+  const { sb, err } = requireClient();
+  if (!sb) return { ok: false, error: err! };
+  const { data: cat } = await sb
+    .from("service_categories")
+    .select("is_user_defined")
+    .eq("code", code)
+    .maybeSingle();
+  if (!cat?.is_user_defined) {
+    return { ok: false, error: "ไม่สามารถลบหมวดหมู่มาตรฐานของระบบได้" };
+  }
+  const { error } = await sb.from("service_categories").delete().eq("code", code);
+  if (error) return { ok: false, error: error.message };
+  revalidateAll();
   return { ok: true };
 }

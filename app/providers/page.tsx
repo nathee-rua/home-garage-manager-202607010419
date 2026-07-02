@@ -81,7 +81,10 @@ export default async function ProvidersPage() {
                       </span>
                     </TableCell>
                     <TableCell>
-                      <DeleteButton action={deleteProvider.bind(null, p.id)} />
+                      <div className="flex items-center gap-1">
+                        <ProviderFormDialog provider={p} />
+                        <DeleteButton action={deleteProvider.bind(null, p.id)} />
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
