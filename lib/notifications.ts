@@ -15,6 +15,7 @@ export async function sendEmailNotification(
   }
 
   try {
+    const targetEmail = process.env.RESEND_TO_EMAIL_OVERRIDE || to;
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -23,7 +24,7 @@ export async function sendEmailNotification(
       },
       body: JSON.stringify({
         from: "Home Garage Manager <onboarding@resend.dev>", // default sender for testing
-        to: [to],
+        to: [targetEmail],
         subject: subject,
         html: html,
       }),
