@@ -53,7 +53,7 @@ export default async function DashboardPage() {
       <ConfigBanner />
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard label="รถทั้งหมด" value={stats.totalVehicles} icon={Car} />
+        <StatCard label="รถทั้งหมด" value={stats.totalVehicles} icon={Car} tone="brand" />
         <StatCard
           label="เกินกำหนด"
           value={stats.overdueCount}
@@ -70,6 +70,7 @@ export default async function DashboardPage() {
           label="ครบกำหนดเดือนนี้"
           value={stats.upcomingThisMonth}
           icon={CalendarDays}
+          tone={stats.upcomingThisMonth > 0 ? "info" : "default"}
         />
       </div>
 
