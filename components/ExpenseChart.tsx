@@ -6,12 +6,6 @@ interface ChartDataPoint {
 }
 
 export function ExpenseChart({ data }: { data: ChartDataPoint[] }) {
-  if (data.length === 0) return null;
-
-  // Take latest 6 items for better layout spacing if list is too long, and reverse to chronological order
-  const chartData = data.slice(0, 6).reverse();
-  const maxValue = Math.max(...chartData.map((d) => d.total), 1);
-
   // SVG dimensions
   const svgWidth = 500;
   const svgHeight = 240;
@@ -22,6 +16,25 @@ export function ExpenseChart({ data }: { data: ChartDataPoint[] }) {
 
   const chartWidth = svgWidth - paddingLeft - paddingRight;
   const chartHeight = svgHeight - paddingTop - paddingBottom;
+
+  if (!data || data.length === 0) {
+    return (
+      <div className="w-full bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-5 rounded-2xl shadow-sm min-h-[250px] flex flex-col">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4 dark:text-slate-500">
+          แนวโน้มรายจ่าย / Expense Trend
+        </h3>
+        <div className="flex-1 flex flex-col items-center justify-center border border-dashed border-slate-200 dark:border-slate-800 rounded-xl py-10">
+          <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+            ไม่มีข้อมูลแนวโน้มรายจ่าย / No expense data available
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Take latest 6 items for better layout spacing if list is too long, and reverse to chronological order
+  const chartData = data.slice(0, 6).reverse();
+  const maxValue = Math.max(...chartData.map((d) => d.total), 1);
   const barWidth = Math.min(30, (chartWidth / chartData.length) * 0.4);
   const colWidth = chartWidth / chartData.length;
 
@@ -41,6 +54,19 @@ export function ExpenseChart({ data }: { data: ChartDataPoint[] }) {
               <stop offset="100%" stopColor="#c5a880" stopOpacity="0.15" />
             </linearGradient>
           </defs>
+
+          {/* Inline styling for bar growth animation */}
+          <style>{`
+            @keyframes barGrow {
+              from {
+                height: 0px;
+                y: ${paddingTop + chartHeight}px;
+              }
+            }
+            .bar-animate {
+              animation: barGrow 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+            }
+          `}</style>
 
           {/* Grid lines */}
           {ticks.map((t, idx) => {
@@ -92,17 +118,32 @@ export function ExpenseChart({ data }: { data: ChartDataPoint[] }) {
                   width={barWidth}
                   height={Math.max(4, bHeight)}
                   rx="3"
-                  className="fill-[url(#barGrad)] transition-all duration-300 hover:fill-[#b2936a] cursor-pointer"
+                  className="fill-[url(#barGrad)] transition-all duration-300 hover:fill-[#b2936a] cursor-pointer bar-animate"
+                  style={{
+                    animationDelay: `${idx * 0.08}s`
+                  }}
                 />
-                {/* Hover value label */}
-                <text
-                  x={x + barWidth / 2}
-                  y={y - 8}
-                  textAnchor="middle"
-                  className="text-[9px] font-bold fill-slate-800 dark:fill-slate-200 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none font-mono"
-                >
-                  ฿{d.total.toLocaleString()}
-                </text>
+                
+                {/* Visual tooltip pill background for value label */}
+                <g className="opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none duration-200">
+                  <rect
+                    x={x + barWidth / 2 - 35}
+                    y={y - 22}
+                    width="70"
+                    height="14"
+                    rx="3"
+                    className="fill-slate-900 dark:fill-slate-100 shadow-sm"
+                  />
+                  <text
+                    x={x + barWidth / 2}
+                    y={y - 12}
+                    textAnchor="middle"
+                    className="text-[8px] font-bold fill-white dark:fill-slate-900 font-mono"
+                  >
+                    ฿{d.total.toLocaleString()}
+                  </text>
+                </g>
+
                 {/* X axis Label */}
                 <text
                   x={x + barWidth / 2}

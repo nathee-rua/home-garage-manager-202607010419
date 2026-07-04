@@ -17,8 +17,8 @@ function num(v: FormDataEntryValue | null): number | null {
 }
 
 function str(v: FormDataEntryValue | null): string | null {
-  if (v === null) return null;
-  const s = String(v).trim();
+  if (v === null || typeof v !== "string") return null;
+  const s = v.trim();
   return s === "" ? null : s;
 }
 

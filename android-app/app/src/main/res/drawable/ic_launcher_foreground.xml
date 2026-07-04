@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Simple garage/house icon in white -->
+    <!-- Roof -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,28 L30,48 L78,48 Z" />
+    <!-- House body -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M34,48 L34,72 L74,72 L74,48 Z" />
+    <!-- Garage door -->
+    <path
+        android:fillColor="#c5a880"
+        android:pathData="M44,56 L44,72 L64,72 L64,56 Z" />
+    <!-- Door lines (garage shutter effect) -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.2"
+        android:pathData="M44,60 L64,60" />
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.2"
+        android:pathData="M44,64 L64,64" />
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.2"
+        android:pathData="M44,68 L64,68" />
+</vector>

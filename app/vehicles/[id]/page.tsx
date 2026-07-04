@@ -128,7 +128,7 @@ export default async function VehicleDetailPage({
       </div>
 
       <Tabs defaultValue="overview">
-        <TabsList className="flex h-auto w-full flex-wrap justify-start">
+        <TabsList className="flex flex-nowrap overflow-x-auto w-full bg-slate-100/80 p-1 border rounded-xl h-auto gap-1 scrollbar-none justify-start md:flex-wrap md:overflow-visible">
           <TabsTrigger value="overview">ภาพรวม</TabsTrigger>
           <TabsTrigger value="maintenance">บำรุงรักษา</TabsTrigger>
           <TabsTrigger value="repairs">ซ่อม</TabsTrigger>
@@ -285,7 +285,7 @@ export default async function VehicleDetailPage({
                           <span className="ml-2 text-xs text-muted-foreground font-normal">({pct(serviceTotal).toFixed(1)}%)</span>
                         </div>
                       </div>
-                      <div className="h-1 w-full rounded-full bg-slate-100">
+                      <div className="h-1 w-full rounded-full bg-slate-100 dark:bg-slate-800">
                         <div
                           className="h-1 rounded-full bg-[#c5a880] transition-all duration-500"
                           style={{ width: `${pct(serviceTotal)}%` }}
@@ -301,7 +301,7 @@ export default async function VehicleDetailPage({
                           <span className="ml-2 text-xs text-muted-foreground font-normal">({pct(repairTotal).toFixed(1)}%)</span>
                         </div>
                       </div>
-                      <div className="h-1 w-full rounded-full bg-slate-100">
+                      <div className="h-1 w-full rounded-full bg-slate-100 dark:bg-slate-800">
                         <div
                           className="h-1 rounded-full bg-[#c5a880] transition-all duration-500"
                           style={{ width: `${pct(repairTotal)}%` }}
@@ -317,7 +317,7 @@ export default async function VehicleDetailPage({
                           <span className="ml-2 text-xs text-muted-foreground font-normal">({pct(renewalTotal).toFixed(1)}%)</span>
                         </div>
                       </div>
-                      <div className="h-1 w-full rounded-full bg-slate-100">
+                      <div className="h-1 w-full rounded-full bg-slate-100 dark:bg-slate-800">
                         <div
                           className="h-1 rounded-full bg-[#c5a880] transition-all duration-500"
                           style={{ width: `${pct(renewalTotal)}%` }}
@@ -325,7 +325,7 @@ export default async function VehicleDetailPage({
                       </div>
                     </div>
 
-                    <div className="flex justify-between pt-2 text-base font-bold text-slate-900">
+                    <div className="flex justify-between pt-2 text-base font-bold text-slate-900 dark:text-slate-100">
                       <span>รวมทั้งหมด / Grand Total</span>
                       <span className="tabular-nums">{formatTHB(total)}</span>
                     </div>

@@ -1,5 +1,6 @@
 import { CheckCircle2, XCircle, Bell, Fuel, Wrench, Settings2 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
+import { SettingsTabObserver } from "@/components/SettingsTabObserver";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -50,7 +51,11 @@ function EnvRow({ name, ok, hint }: { name: string; ok: boolean; hint: string })
   );
 }
 
-export default async function SettingsPage() {
+export default async function SettingsPage({
+  searchParams,
+}: {
+  searchParams: { tab?: string };
+}) {
   const url = getSupabaseUrl();
   const anon = getSupabaseAnonKey();
   const service = getSupabaseServiceKey();
@@ -63,16 +68,19 @@ export default async function SettingsPage() {
     getUserSettings(),
   ]);
 
+  const activeTab = searchParams?.tab || "env";
+
   return (
     <div className="space-y-6">
+      <SettingsTabObserver />
       <PageHeader
         title="ตั้งค่า"
         subtitle="Settings · กำหนดค่าระบบและการแจ้งเตือนครบวงจร"
         icon={Settings2}
       />
 
-      <Tabs defaultValue="env" className="space-y-6">
-        <TabsList className="flex flex-wrap w-full bg-slate-100/80 p-1 border rounded-xl h-auto gap-1">
+      <Tabs defaultValue={activeTab} className="space-y-6">
+        <TabsList className="flex flex-nowrap overflow-x-auto w-full bg-slate-100/80 p-1 border rounded-xl h-auto gap-1 scrollbar-none md:flex-wrap md:overflow-visible">
           <TabsTrigger value="env" className="flex-1 py-2.5 px-3 text-xs md:text-sm font-medium gap-2 flex items-center justify-center rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">
             <Settings2 className="h-4 w-4 text-muted-foreground" />
             <span>เชื่อมต่อระบบ / System</span>

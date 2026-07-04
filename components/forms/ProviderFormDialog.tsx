@@ -84,7 +84,7 @@ export function ProviderFormDialog({ provider }: ProviderFormDialogProps) {
           <Field label="ชื่อ / Name" htmlFor="name">
             <Input id="name" name="name" required defaultValue={provider?.name ?? ""} />
           </Field>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Field label="ประเภท / Type">
               <Select value={type} onValueChange={(val) => setType(val as ProviderType)}>
                 <SelectTrigger>

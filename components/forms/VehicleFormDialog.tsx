@@ -92,7 +92,7 @@ export function VehicleFormDialog({ vehicle, fuelTypes }: VehicleFormDialogProps
           </DialogDescription>
         </DialogHeader>
         <form action={onSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Field label="ยี่ห้อ / Brand" htmlFor="brand">
               <Input id="brand" name="brand" required placeholder="Toyota" defaultValue={vehicle?.brand ?? ""} />
             </Field>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useRef } from "react";
+import { useState, useTransition, useRef, useEffect } from "react";
 import { Upload, Camera, Loader2, Trash2, FileText, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getBrowserClient } from "@/lib/supabase/client";
@@ -25,31 +25,53 @@ export function AttachmentUploader({
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [previewFile, setPreviewFile] = useState<Attachment | null>(null);
+  const [imgLoading, setImgLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const [pending, startTransition] = useTransition();
   const inputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  useEffect(() => {
+    setImgLoading(true);
+  }, [previewFile]);
+
   async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+
     setError(null);
-    const sb = getBrowserClient();
-    if (!sb) {
-      setError("ยังไม่ได้ตั้งค่า Supabase");
-      return;
-    }
     setUploading(true);
+
     try {
-      const path = `${entityType}/${entityId}/${Date.now()}-${file.name}`;
-      const { error: upErr } = await sb.storage.from(BUCKET).upload(path, file, {
-        upsert: false,
-      });
-      if (upErr) throw upErr;
-      const { data } = sb.storage.from(BUCKET).getPublicUrl(path);
+      const sb = getBrowserClient();
+      if (!sb) throw new Error("Supabase client is not available");
+
+      // Validate file size (10MB limit)
+      const MAX_SIZE = 10 * 1024 * 1024;
+      if (file.size > MAX_SIZE) {
+        throw new Error("ไฟล์มีขนาดใหญ่เกินไป จำกัดไม่เกิน 10MB / File too large, max 10MB");
+      }
+
+      const filePath = `${vehicleId}/${Date.now()}-${file.name}`;
+      const { error: uploadErr } = await sb.storage
+        .from(BUCKET)
+        .upload(filePath, file, { cacheControl: "3600", upsert: false });
+
+      if (uploadErr) throw uploadErr;
+
+      const { data: urlData } = sb.storage.from(BUCKET).getPublicUrl(filePath);
+
       const res = await createAttachment({
         entity_type: entityType,
         entity_id: entityId,
-        file_url: data.publicUrl,
+        file_url: urlData.publicUrl,
         file_name: file.name,
         file_type: file.type,
       });
@@ -63,6 +85,9 @@ export function AttachmentUploader({
   }
 
   function onDelete(id: string) {
+    if (!confirm("คุณต้องการลบไฟล์แนบนี้ใช่หรือไม่? / Are you sure you want to delete this attachment?")) {
+      return;
+    }
     startTransition(async () => {
       await deleteAttachment(id, vehicleId);
     });
@@ -180,12 +205,36 @@ export function AttachmentUploader({
             </DialogHeader>
             <div className="flex items-center justify-center pt-4 min-h-[300px]">
               {previewFile.file_type?.startsWith("image/") ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={previewFile.file_url}
-                  alt={previewFile.file_name ?? "Receipt"}
-                  className="max-w-full max-h-[70vh] rounded-lg object-contain shadow-md"
-                />
+                <div className="relative w-full flex items-center justify-center min-h-[300px]">
+                  {imgLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-slate-900/50 rounded-lg">
+                      <Loader2 className="h-8 w-8 animate-spin text-amber-500" />
+                    </div>
+                  )}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={previewFile.file_url}
+                    alt={previewFile.file_name ?? "Receipt"}
+                    onLoad={() => setImgLoading(false)}
+                    className="max-w-full max-h-[70vh] rounded-lg object-contain shadow-md"
+                  />
+                </div>
+              ) : isMobile ? (
+                <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
+                  <FileText className="h-16 w-16 text-slate-400 mb-4" />
+                  <p className="text-sm font-semibold text-slate-200 mb-6">
+                    การดูไฟล์ PDF ในหน้านี้อาจจำกัดบนมือถือ
+                  </p>
+                  <a
+                    href={previewFile.file_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-600 hover:bg-amber-700 px-5 py-3 text-sm font-bold text-white transition-colors"
+                  >
+                    <ExternalLink className="h-4.5 w-4.5" />
+                    <span>เปิดดูไฟล์ PDF / View PDF</span>
+                  </a>
+                </div>
               ) : (
                 <iframe
                   src={previewFile.file_url}

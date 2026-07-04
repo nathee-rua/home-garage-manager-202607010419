@@ -150,7 +150,7 @@ export default async function ExpensesPage() {
                       <TableRow key={r.vehicle}>
                         <TableCell>
                           <div className="font-medium">{r.vehicle}</div>
-                          <div className="mt-1.5 hidden h-1 w-full max-w-[200px] rounded-full bg-slate-100 sm:block">
+                          <div className="mt-1.5 hidden h-1 w-full max-w-[200px] rounded-full bg-slate-100 dark:bg-slate-800 sm:block">
                             <div
                               className="h-1 rounded-full bg-[#c5a880] transition-all"
                               style={{ width: `${percentage}%` }}
@@ -199,7 +199,7 @@ export default async function ExpensesPage() {
                           <TableRow key={r.category}>
                             <TableCell>
                               <div className="font-medium">{r.category}</div>
-                              <div className="mt-1.5 hidden h-1 w-full max-w-[200px] rounded-full bg-slate-100 sm:block">
+                              <div className="mt-1.5 hidden h-1 w-full max-w-[200px] rounded-full bg-slate-100 dark:bg-slate-800 sm:block">
                                 <div
                                   className="h-1 rounded-full bg-[#c5a880] transition-all"
                                   style={{ width: `${percentage}%` }}
@@ -251,7 +251,7 @@ export default async function ExpensesPage() {
                           <TableRow key={r.month}>
                             <TableCell>
                               <div className="font-medium">{r.month}</div>
-                              <div className="mt-1.5 hidden h-1 w-full max-w-[200px] rounded-full bg-slate-100 sm:block">
+                              <div className="mt-1.5 hidden h-1 w-full max-w-[200px] rounded-full bg-slate-100 dark:bg-slate-800 sm:block">
                                 <div
                                   className="h-1 rounded-full bg-[#c5a880] transition-all"
                                   style={{ width: `${percentage}%` }}

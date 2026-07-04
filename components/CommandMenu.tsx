@@ -26,8 +26,24 @@ export function CommandMenu() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [shortcutKey, setShortcutKey] = useState("Ctrl+K");
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const isMac = typeof window !== "undefined" && /Mac|iPod|iPhone|iPad/.test(navigator.userAgent);
+    setShortcutKey(isMac ? "⌘K" : "Ctrl+K");
+  }, []);
+
+  useEffect(() => {
+    if (listRef.current) {
+      const activeEl = listRef.current.querySelector('[data-active="true"]');
+      if (activeEl) {
+        activeEl.scrollIntoView({ block: "nearest" });
+      }
+    }
+  }, [selectedIndex]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -91,7 +107,7 @@ export function CommandMenu() {
             ref={inputRef}
             autoFocus
             type="text"
-            placeholder="ค้นหาหน้าเว็บ หรือพิมพ์คำสั่ง... (Ctrl+K หรือ Esc เพื่อปิด)"
+            placeholder={`ค้นหาหน้าเว็บ หรือพิมพ์คำสั่ง... (${shortcutKey} เพื่อเปิด/ปิด, Esc เพื่อปิด)`}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -100,7 +116,7 @@ export function CommandMenu() {
         </div>
 
         {/* Results List */}
-        <div className="max-h-[300px] overflow-y-auto p-2 space-y-0.5">
+        <div ref={listRef} className="max-h-[300px] overflow-y-auto p-2 space-y-0.5">
           {filteredItems.length > 0 ? (
             filteredItems.map((item, idx) => {
               const Icon = item.icon;
@@ -109,6 +125,7 @@ export function CommandMenu() {
                 <button
                   key={item.href}
                   onClick={() => navigateTo(item.href)}
+                  data-active={active}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all ${
                     active
                       ? "bg-slate-100 dark:bg-slate-800/70 text-slate-900 dark:text-white font-semibold"
