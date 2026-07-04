@@ -22,6 +22,13 @@ function str(v: FormDataEntryValue | null): string | null {
   return s === "" ? null : s;
 }
 
+function getLocalDateString(): string {
+  const d = new Date();
+  const offset = d.getTimezoneOffset();
+  const localDate = new Date(d.getTime() - offset * 60 * 1000);
+  return localDate.toISOString().slice(0, 10);
+}
+
 function requireClient() {
   const sb = getServerClient();
   if (!sb) {
@@ -98,7 +105,7 @@ export async function createServiceEvent(formData: FormData): Promise<ActionResu
   if (!sb) return { ok: false, error: err! };
   const payload = {
     vehicle_id: str(formData.get("vehicle_id")),
-    date: str(formData.get("date")) ?? new Date().toISOString().slice(0, 10),
+    date: str(formData.get("date")) ?? getLocalDateString(),
     odometer: num(formData.get("odometer")),
     category: str(formData.get("category")) ?? "engine_oil",
     details: str(formData.get("details")),
@@ -130,7 +137,7 @@ export async function createRepairEvent(formData: FormData): Promise<ActionResul
   if (!sb) return { ok: false, error: err! };
   const payload = {
     vehicle_id: str(formData.get("vehicle_id")),
-    date: str(formData.get("date")) ?? new Date().toISOString().slice(0, 10),
+    date: str(formData.get("date")) ?? getLocalDateString(),
     symptom: str(formData.get("symptom")),
     diagnosis: str(formData.get("diagnosis")),
     action_taken: str(formData.get("action_taken")),
@@ -291,6 +298,22 @@ export async function createAttachment(payload: {
 export async function deleteAttachment(id: string, vehicleId: string): Promise<ActionResult> {
   const { sb, err } = requireClient();
   if (!sb) return { ok: false, error: err! };
+
+  // Fetch file_url first to delete it from storage
+  const { data: attachment } = await sb
+    .from("attachments")
+    .select("file_url")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (attachment?.file_url) {
+    const parts = attachment.file_url.split("/attachments/");
+    if (parts.length > 1) {
+      const filePath = parts[1];
+      await sb.storage.from("attachments").remove([filePath]);
+    }
+  }
+
   const { error } = await sb.from("attachments").delete().eq("id", id);
   if (error) return { ok: false, error: error.message };
   revalidatePath(`/vehicles/${vehicleId}`);

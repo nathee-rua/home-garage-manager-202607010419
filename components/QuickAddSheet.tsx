@@ -210,7 +210,7 @@ export function QuickAddSheet({
                 value={logProvider}
                 onChange={setLogProvider}
               />
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 <Field label="ค่าอะไหล่">
                   <Input name="cost_parts" type="number" step="0.01" placeholder="0" />
                 </Field>

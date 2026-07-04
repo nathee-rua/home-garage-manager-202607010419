@@ -124,7 +124,7 @@ export function NotificationSettingsForm({ settings }: NotificationSettingsFormP
             placeholder="1234567890"
             disabled={!telegramEnabled}
           />
-          <div className="rounded bg-slate-50 p-2.5 text-xs text-muted-foreground space-y-1 border">
+          <div className="rounded bg-slate-50 dark:bg-slate-900/50 p-2.5 text-xs text-muted-foreground space-y-1 border dark:border-slate-800">
             <span className="font-semibold flex items-center gap-1"><Info className="h-3 w-3" /> วิธีขอเลข Telegram Chat ID:</span>
             <ol className="list-decimal list-inside space-y-0.5 ml-1">
               <li>เปิดแอป Telegram ค้นหาบอตชื่อ <code>@userinfobot</code> หรือพิมพ์ข้อความหาบอตใดๆ ที่แชร์ข้อมูลแชทของคุณ</li>
